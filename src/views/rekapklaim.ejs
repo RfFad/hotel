@@ -1,0 +1,333 @@
+<script>
+  function number_format (number, decimals, dec_point, thousands_sep) {
+    // Strip all characters but numerical ones.
+    number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+    var n = !isFinite(+number) ? 0 : +number,
+        prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+        sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+        dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+        s = '',
+        toFixedFix = function (n, prec) {
+            var k = Math.pow(10, prec);
+            return '' + Math.round(n * k) / k;
+        };
+    // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+    s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+    if (s[0].length > 3) {
+        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+    }
+    if ((s[1] || '').length < prec) {
+        s[1] = s[1] || '';
+        s[1] += new Array(prec - s[1].length + 1).join('0');
+    }
+    return s.join(dec);
+	}
+  function addtahun(){
+    const d = new Date();
+    let year = d.getFullYear();
+    for (i = year; i > (year-4); i--){
+      $("[name='thn']").append($('<option>',{
+        value: i,
+        text : i
+      }));
+    }
+  }
+  function simpanfile(){
+    // alert("coba");
+    console.log(document.getElementById("photo_file").files[0]);
+    var formData = new FormData();
+    formData.append("importexcel", document.getElementById("photo_file").files[0]);
+    formData.append("fpk",$("[name='fpk']").val());
+    $.ajax({
+        url:'<%= url %>excel-data',
+        type: 'POST',
+        contentType: false,
+        processData: false,
+        cache: false,
+        data: formData,
+        success: function(res){
+            console.log(res);
+        },
+        error: function(res){
+            console.log(res);
+        }
+    })
+  }
+  function simpanfile2(){
+      var status = $("[name='status']").val();
+      var sts = $("[name='status']").val();
+      var fpk = $("[name='fpk']").val();
+      status = status=="rajal" ? 2 : 1;
+      var files = document.getElementById("photo_file").files;
+      var totalsize = 0;
+      if (files.length > 0) {
+        var file = files[0];
+        totalsize = files[0].size;
+      }
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            var imagedata = reader.result;
+            $("[name='source_photo']").val(imagedata);
+            $.ajax({
+                type: "POST",
+                data: {importexcel: imagedata,pelayanan:status,fpk:fpk},
+                url: '<%= url %>excel-data' ,
+                success: function(result) {
+                    console.log(result);
+                    // alert("Data berhasil disimpan");
+                    // window.location ="<?php echo site_url('grouper/rekap_klaim');?>/"+sts;
+                },
+                error: function(result) {
+                    console.log(result);
+                }
+            });
+        };
+  }
+  function listklaim(){
+    var status = $("[name='status']").val();
+    var thn = $("[name='thn']").val();
+    var bulan = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","Nopember","Desember"];
+    var echo = "";
+    $.ajax({
+        url: '<%= url %>listklaim',
+        type: 'post',
+        data: {status : status, thn: thn, fpk:1},
+        success: function (result) {
+          console.log(result);
+          $.each(bulan, function(key, value) {
+            if (value!=""){
+              var rk = result.data.find(a => a.bulan === key);
+              var rk_layak = result.data.find(a => a.bulan === key && a.status == "layak");
+              var rk_tdklayak = result.data.find(a => a.bulan === key && a.status == "tdklayak");
+              var rk_pending = result.data.find(a => a.bulan === key && a.status == "pending");
+              var tarif_rslayak = rk_layak!=undefined ? rk_layak.tarif_rs : 0;
+              var tarif_bpjslayak = rk_layak!=undefined ? rk_layak.tarif_bpjs : 0;
+              var tarif_rstdklayak = rk_tdklayak!=undefined ? rk_tdklayak.tarif_rs : 0;
+              var tarif_bpjstdklayak = rk_tdklayak!=undefined ? rk_tdklayak.tarif_bpjs : 0;
+              var tarif_rspending = rk_pending!=undefined ? rk_pending.tarif_rs : 0;
+              var tarif_bpjspending = rk_pending!=undefined ? rk_pending.tarif_bpjs : 0;
+              var total_tarif = tarif_rslayak+tarif_bpjslayak+tarif_rstdklayak+tarif_bpjstdklayak+tarif_rspending+tarif_bpjspending;
+              var total_tarifrs = tarif_rslayak+tarif_rstdklayak+tarif_rspending;
+              var total_tarifbpjs = tarif_bpjslayak+tarif_bpjstdklayak+tarif_bpjspending;
+              var total_tariflayak = tarif_rslayak+tarif_bpjslayak;
+              var total_tariftdklayak = tarif_rstdklayak+tarif_bpjstdklayak;
+              var total_tarifpending = tarif_rspending+tarif_bpjspending;
+              if (rk!=undefined){
+                echo += "<tr class='data'>";
+                echo += "<td class='text-center' style='vertical-align:middle'>"+key+"</td>";
+                echo += "<td class='text-center datafpk' fpk='1' bulan='"+key+"' style='vertical-align:middle'><label class='badge label label-success'>FPK 1</label></td>";
+                echo += "<td class='text-center'><a href='#' class='changeno' fpk='1' bln='"+key+"'>"+(rk.no==null ? "-" : rk.no)+"</a></td>";
+                echo += "<td class='text-center'><a href='#' class='changetgl' fpk='1' bln='"+key+"'>"+(rk.tgl==null ? "-" : rk.tgl)+"</a></td>";
+                echo += "<td class='text-center'>"+number_format(total_tarif,0,',','.')+"</td>";
+                echo += "<td class='text-right'>"+number_format(total_tarifrs,0,',','.')+"</td>";
+                echo += "<td class='text-right'>"+number_format(total_tarifbpjs,0,',','.')+"</td>";
+                echo += "<td class='text-center'><a href='#' class='changenofpk' fpk='1' bln='"+key+"'>"+(rk.nofpk==null ? "-" : rk.nofpk)+"</a></td>";
+                echo += "<td class='text-center'><a href='#' class='changetglfpk' fpk='1' bln='"+key+"'>"+(rk.tglfpk==null ? "-" : rk.tglfpk)+"</a></td>";
+                echo += "<td class='text-center'>"+(rk_layak!=undefined ? rk_layak.jml : "-")+"</td>";
+                echo += "<td class='text-center'>"+number_format(tarif_rslayak,0,',','.')+"</td>";
+                echo += "<td class='text-center'>"+number_format(tarif_bpjslayak,0,',','.')+"</td>";
+                echo += "<td class='text-center'>"+(rk_tdklayak!=undefined ? rk_tdklayak.jml : "-")+"</td>";
+                echo += "<td class='text-center'>"+number_format(tarif_rstdklayak,0,',','.')+"</td>";
+                echo += "<td class='text-center'>"+number_format(tarif_bpjstdklayak,0,',','.')+"</td>";
+                echo += "<td class='text-center'>"+(rk_pending!=undefined ? rk_pending.jml : "-")+"</td>";
+                echo += "<td class='text-center'>"+number_format(tarif_rspending,0,',','.')+"</td>";
+                echo += "<td class='text-center'>"+number_format(tarif_bpjspending,0,',','.')+"</td>";
+                echo += "</tr>";
+              } else {
+                echo += "<tr class='data'>";
+                echo += "<td class='text-center' style='vertical-align:middle'>"+key+"</td>";
+                echo += "<td class='text-center datafpk' fpk='1' bulan='"+key+"' style='vertical-align:middle'><label class='badge label label-success'>FPK 1</label></td>";
+                echo += "<td class='text-center'><a href='#' class='changeno' fpk='1' bln='"+key+"'>"+(rk==undefined ? "-" : rk.no)+"</a></td>";
+                echo += "<td class='text-center'><a href='#' class='changetgl' fpk='1' bln='"+key+"'>"+(rk==undefined ? "-" : rk.tgl)+"</a></td>";
+                echo += "<td class='text-center'>"+(total_tarif)+"</td>";
+                echo += "<td class='text-right'>"+(total_tarifrs)+"</td>";
+                echo += "<td class='text-right'>"+(total_tarifbpjs)+"</td>";
+                echo += "<td class='text-center'><a href='#' class='changenofpk' fpk='1' bln='"+key+"'>"+(rk==undefined ? "-" : rk.nofpk)+"</a></td>";
+                echo += "<td class='text-center'><a href='#' class='changetglfpk' fpk='1' bln='"+key+"'>"+(rk==undefined ? "-" : rk.tglfpk)+"</a></td>";
+                echo += "<td class='text-center'>"+(rk_layak!=undefined ? rk_layak.jml : "-")+"</td>";
+                echo += "<td class='text-center'>"+(tarif_rslayak)+"</td>";
+                echo += "<td class='text-center'>"+(tarif_bpjslayak)+"</td>";
+                echo += "<td class='text-center'>"+(rk_tdklayak!=undefined ? rk_tdklayak.jml : "-")+"</td>";
+                echo += "<td class='text-center'>"+(tarif_rstdklayak)+"</td>";
+                echo += "<td class='text-center'>"+(tarif_bpjstdklayak)+"</td>";
+                echo += "<td class='text-center'>"+(rk_pending!=undefined ? rk_pending.jml : "-")+"</td>";
+                echo += "<td class='text-center'>"+(tarif_rspending)+"</td>";
+                echo += "<td class='text-center'>"+(tarif_bpjspending)+"</td>";
+                echo += "</tr>";
+              }
+            }
+          });
+          $(".list").html(echo);
+        },
+        error: function (result) {
+          console.log(result);
+        }
+    });
+  }
+  $(document).ready(function(){
+    addtahun();
+    listklaim();
+    $(".upload").click(function(){
+        $(".modal_upload").modal("show");
+    });
+    $(".simpanfile").click(function(){
+        simpanfile();
+    });
+    $("[name='importexcel']").change(function(event){
+        $('.photo').attr("src",URL.createObjectURL(event.target.files[0]));
+        simpanfile();
+    });
+  });
+
+  $(document).on('change', '.btn-file-photo :file', function() {
+      var input = $(this),
+          numFiles = input.get(0).files ? input.get(0).files.length : 1,
+          label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+      input.trigger('fileselect', [numFiles, label]);
+  });
+</script>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box box-primary">
+			<div class="box-header with-border">
+        <div class="row">
+          <div class="col-xs-12"><a href="#" class="back"><i class="fa fa-arrow-left"></i></a><h3 class="box-title">&nbsp;List SEP</h3></div>
+        </div>
+      </div>
+			<div class="box-body">
+        <div class="row">
+          <div class="pull-left col-xs-6 form-horizontal">
+            <label class="col-xs-2 control-label">Pelayanan</label>
+            <div class="col-xs-4">
+              <select class="form-control" name="status">
+                <option value="rajal">Rawat Jalan</option>
+                <option value="ranap">Rawat Inap</option>
+              </select>
+            </div>
+            <label class="col-xs-2 control-label">Tahun</label>
+            <div class="col-xs-4">
+              <select class="form-control" name="thn"></select>
+            </div>
+          </div>
+          <div class="col-xs-6">
+            <div class="pull-right">
+              <button class="upload btn btn-success"><span class="fa fa-list"></span>&nbsp; Upload</button>
+              <!-- <button class="cetak btn btn-primary"><span class="fa fa-print"></span> Cetak</button> -->
+            </div>
+          </div>
+        </div>
+        <div class="clearfix">&nbsp;</div>
+        <div class="row">
+          <div class="clearfix">&nbsp;</div>
+				  <div class="col-xs-12">
+            <div class="table-responsive">
+              <table class="table table-hover table-bordered rajal">
+                  <thead>
+                      <tr class='bg-navy'>
+                          <th class="text-center" style="vertical-align:middle" rowspan="3">BLN</th>
+                          <th class="text-center" style="vertical-align:middle" rowspan="3">FPK</th>
+                          <th class="text-center" style="vertical-align:middle" rowspan="2" colspan="5">PENGAJUAN</th>
+                          <th class="text-center" colspan="11">FPK</th>
+                      </tr>
+                      <tr class='bg-navy'>
+                        <th class="text-center" style="vertical-align:middle" rowspan="3">No</th>
+                        <th class="text-center" style="vertical-align:middle" rowspan="3">Tgl</th>
+                        <th colspan="3" class="text-center">Layak</th>
+                        <th colspan="3" class="text-center">Tidak Layak</th>
+                        <th colspan="3" class="text-center">Pending</th>
+                      </tr>
+                      <tr class='bg-navy'>
+                        <th class="text-center">No</th>
+                        <th class="text-center">Tgl</th>
+                        <th class="text-center">Berkas</th>
+                        <th class="text-center">Tarif RS</th>
+                        <th class="text-center">Tarif BPJS</th>
+                        <th class="text-center">Berkas</th>
+                        <th class="text-center">Tarif RS</th>
+                        <th class="text-center">Tarif BPJS</th>
+                        <th class="text-center">Berkas</th>
+                        <th class="text-center">Tarif RS</th>
+                        <th class="text-center">Tarif BPJS</th>
+                        <th class="text-center">Berkas</th>
+                        <th class="text-center">Tarif RS</th>
+                        <th class="text-center">Tarif BPJS</th>
+                      </tr>
+                  </thead>
+                  <tbody class="list">
+                  </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="box-footer">
+        <div class="list2"></div>
+      </div>
+		</div>
+	</div>
+</div>
+<div class='modal modal_upload no-print' role="dialog">
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class="modal-header bg-orange">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class='modal-title'><i class="icon fa fa-user"></i>&nbsp;&nbsp;Upload File&nbsp;<span class="nama_tindakan"></span></h4>
+            </div>
+            <div class='modal-body form-horizontal'>
+                <label class="col-xs-1 control-label">FPK</label>
+                <div class="col-xs-2"><input type="number" name="fpk" class="form-control"></div>
+                <div class="col-xs-9">
+                  <div id="file-photo">
+                      <div class="input-group">
+                          <input type="hidden" name="source_photo">
+                          <input type="text" class="form-control" readonly>
+                          <span class="input-group-btn">
+                              <span class="btn btn-warning btn-file-photo"><i class="fa fa-folder-open"></i><input type="file" name="importexcel" id="photo_file" class="form-control"></span>
+                          </span>
+                      </div>
+                  </div>
+                </div>
+                <div class="clearfix">&nbsp;</div>
+                <div class="list-file table-responsive"></div>
+            </div>
+            <div class='modal-footer'>
+                <div class='pull-right'>
+                  <button type="button" class="btn btn-success simpanfile"><i class="fa fa-save"></i>&nbsp;Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+  .btn.btn-file-excel > input[type='file'] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: 100px;
+      text-align: right;
+      opacity: 0;
+      filter: alpha(opacity=0);
+      outline: none;
+      background: white;
+      cursor: inherit;
+      display: block;
+  }
+  .btn.btn-file-photo > input[type='file'] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: 100px;
+      text-align: right;
+      opacity: 0;
+      filter: alpha(opacity=0);
+      outline: none;
+      background: white;
+      cursor: inherit;
+      display: block;
+  }
+</style>

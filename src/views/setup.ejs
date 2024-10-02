@@ -1,0 +1,90 @@
+<script>
+  $(document).ready(function(){
+		detail();
+		$(".simpan").click(function(){
+			simpan();
+		});
+  });
+	function detail(){
+		$(".loadingdata").show();
+		$.ajax({
+				url: '<%= url %>listsetup',
+				type: 'post',
+				success: function (data) {
+					var val = data.data[0];
+					$("[name='user_name']").val(val.user_name);
+					$("[name='user_email']").val(val.user_email);
+					$("[name='alamat']").val(val.alamat);
+					console.log(val);
+				},
+				error: function(data){
+					console.log(data);
+				}
+		});
+	}
+	function simpan(){
+    var user_name = $("[name='user_name']").val();
+    var user_email = $("[name='user_email']").val();
+		var alamat = $("[name='alamat']").val();
+    var password = $("[name='password']").val();
+    var user_id = '<%= userid %>';
+    var formData = {
+			user_name : user_name,
+			user_email : user_email,
+			alamat : alamat,
+      password: password,
+			user_id : '<%= userid %>',
+		}
+		if (user_id==""){
+			var url = '<%= url %>simpan';
+		} else {
+			var url = '<%= url %>edit';
+		}
+		$.ajax({
+        url: url,
+        type: 'post',
+        data: formData,
+        success: function (data) {
+					Swal.fire({
+					  title: "Berhasil",
+					  text: "Data berhasil "+(user_id=="" ? "disimpan" : "diedit"),
+					  icon: "info"
+					});
+          console.log(data);
+        },
+        error: function (data) {
+          console.log(data)
+        }
+    })
+  }
+</script>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box box-primary">
+			<div class="box-header with-border"><a href="#" class="back"><i class="fa fa-arrow-left"></i></a><h3 class="box-title">&nbsp;Setup Hotel</h3></div>
+			<div class="box-body">
+				<div class="col-xs-12">
+						<div class="form-horizontal">
+							<div class="form-group">
+	              <label class="col-xs-2 col-md-2 control-label">Nama Hotel</label>
+	              <div class="col-xs-10 col-md-10"><input type="text" name="user_name" class="form-control" required></div>
+	            </div>
+	            <div class="form-group">
+	              <label class="col-xs-2 col-md-2 control-label">email</label>
+	              <div class="col-xs-10 col-md-10"><input type="text" name="user_email" class="form-control" required></div>
+	            </div>
+							<div class="form-group">
+	              <label class="col-xs-2 col-md-2 control-label">Alamat</label>
+	              <div class="col-xs-10 col-md-10"><input type="text" name="alamat" class="form-control" required></div>
+	            </div>
+              <div class="form-group">
+	              <label class="col-xs-2 col-md-2 control-label">Password</label>
+	              <div class="col-xs-10 col-md-10"><input type="password" name="password" class="form-control"></div>
+	            </div>
+						</div>
+        </div>
+				<button class="simpan btn btn-success btn-block btn-flat"><i class="fa fa-save"></i>&nbsp;&nbsp;Simpan</button>
+			</div>
+		</div>
+	</div>
+</div>

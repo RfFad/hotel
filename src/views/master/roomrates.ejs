@@ -1,0 +1,412 @@
+<script type="text/javascript">
+    $(document).ready(function () {
+      list();
+      
+      // Show modal for adding new room rates
+      $(".add").click(function () {
+        $(".modal-simpan").modal("show");
+        clearForm();
+        roomtype(); // Clear form on modal open
+        ratetype();
+        sessions();
+        roomplan();
+      });
+  
+      // Handle save button click
+      $(".simpan").click(function () {
+        simpan();
+      });
+  
+      // Handle delete button click
+      $(".hapus").click(function () {
+        var id = $("[name='id']").val();
+        if (id) {
+          Swal.fire({
+            title: "Do you want to delete?",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              hapus(id);
+              Swal.fire("Deleted!", "The rate has been deleted.", "success");
+            }
+          });
+        } else {
+          Swal.fire("Error", "No record selected to delete.", "error");
+        }
+      });
+  
+      // Handle row click in the list to show details
+      $(".list").on("click", "tr#data", function () {
+        var id = $(this).attr("kode");
+        detail(id);
+      });
+    });
+  
+    // Function to clear the form inputs
+    function clearForm() {
+      $("[name='id']").val('');
+      $("[name='id_roomtype']").empty();
+      $("[name='id_ratetype']").empty();
+      $("[name='id_sessions']").empty();
+      $("[name='id_plan']").empty();
+      $("[name='price']").val('');
+      $("[name='charges_adult']").val('');
+      $("[name='charges_child']").val('');
+    }
+  
+    function detail(id) {
+      var url = "<%= url %>detailrates";
+      var formData = { id: id };
+  
+      $.ajax({
+        url: url,
+        type: "GET",
+        data: formData,
+        success: function (row) {
+          var val = row.data[0];
+          $("[name='id']").val(val.id);
+          roomtype(val.id_roomtype)
+          ratetype(val.id_ratetype);
+          sessions(val.id_sessions);
+          roomplan(val.id_plan);
+          $("[name='price']").val(val.price);
+          $("[name='charges_adult']").val(val.charges_adult);
+          $("[name='charges_child']").val(val.charges_child);
+          $("[name='status']").val(val.status);
+          $(".modal-simpan").modal("show");
+        },
+        error: function (data) {
+          console.log(data);
+        },
+      });
+    }
+  
+    function hapus(id) {
+      var url = '<%= url %>hapusrates';
+      var formData = { id: id };
+  
+      $.ajax({
+        url: url,
+        type: 'post',
+        data: formData,
+        success: function (row) {
+          Swal.fire({
+            position: "top-end",
+            title: "Success",
+            text: "Data has been deleted.",
+            icon: "info",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          list();
+          $(".modal-simpan").modal("hide");
+        },
+        error: function (data) {
+          console.log(data);
+        }
+      });
+    }
+  
+    function simpan() {
+      var id_roomtype = $("[name='id_roomtype']").val();
+      var id_ratetype = $("[name='id_ratetype']").val();
+      var id_sessions = $("[name='id_sessions']").val();
+      var id_plan = $("[name='id_plan']").val();
+      var id = $("[name='id']").val();
+      var price = $("[name='price']").val();
+      var charges_adult = $("[name='charges_adult']").val();
+      var charges_child = $("[name='charges_child']").val();
+      var status = $("[name='status']").val();
+  
+      var url = id ? "<%= url %>editroomrates" : "<%= url %>simpanrates";
+      var formData = {
+        id: id,
+        id_roomtype: id_roomtype,
+        id_ratetype: id_ratetype,
+        id_sessions: id_sessions,
+        id_plan: id_plan,
+        price: price,
+        charges_adult: charges_adult,
+        charges_child: charges_child,
+        status: status
+      };
+  
+      $.ajax({
+        url: url,
+        type: "post",
+        data: formData,
+        success: function (data) {
+          Swal.fire({
+            title: "Success",
+            text: "Data has been " + (id ? "updated" : "saved"),
+            icon: "success",
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+          $(".modal-simpan").modal("hide");
+          list();
+        },
+        error: function (data) {
+          console.log(data);
+        },
+      });
+    }
+  
+    function roomtype(id = "") {
+      var url = "<%= url %>listtype";
+      $("[name='id_roomtype']").empty(); // Clear existing options
+  
+      $.ajax({
+        url: url,
+        type: "post",
+        success: function (row) {
+          $.each(row.data, function (key, val) {
+            if(val.status !== 0){
+            var o = $("<option/>", { value: val.id, text: val.nama_type });
+            $("[name='id_roomtype']").append(o);
+            }
+          });
+          if (id) {
+            $("[name='id_roomtype']").val(id).trigger("change");
+          }
+        },
+      });
+    }
+  
+    function ratetype(id = "") {
+      var url = "<%= url %>listratetype";
+      $("[name='id_ratetype']").empty(); // Clear existing options
+  
+      $.ajax({
+        url: url,
+        type: "get",
+        success: function (row) {
+          $.each(row.data, function (key, val) {
+            var o = $("<option/>", { value: val.id, text: val.keterangan });
+            $("[name='id_ratetype']").append(o);
+          });
+          if (id) {
+            $("[name='id_ratetype']").val(id).trigger("change");
+          }
+        },
+      });
+    }
+  
+    function sessions(id = "") {
+      var url = "<%= url %>listsessions";
+      $("[name='id_sessions']").empty(); // Clear existing options
+  
+      $.ajax({
+        url: url,
+        type: "post",
+        success: function (row) {
+          $.each(row.data, function (key, val) {
+            var o = $("<option/>", { value: val.id, text: val.nama_sessions });
+            $("[name='id_sessions']").append(o);
+          });
+          if (id) {
+            $("[name='id_sessions']").val(id).trigger("change");
+          }
+        },
+      });
+    }
+  
+    function roomplan(id = "") {
+      var url = "<%= url %>listroomplan";
+      $("[name='id_plan']").empty(); // Clear existing options
+  
+      $.ajax({
+        url: url,
+        type: "post",
+        success: function (row) {
+          $.each(row.data, function (key, val) {
+            var o = $("<option/>", { value: val.id, text: val.nama_plan });
+            $("[name='id_plan']").append(o);
+          });
+          if (id) {
+            $("[name='id_plan']").val(id).trigger("change");
+          }
+        },
+      });
+    }
+  
+    function list() {
+      $(".loadingdata").show();
+      var html = "";
+      $.ajax({
+        url: "<%= url %>listrates",
+        type: "POST",
+        dataType: "json",
+        success: function (result) {
+          var val = result.data;
+          if (result.jml > 0) {
+            html += "<table class='table table-hover'>";
+            html += "<thead>";
+            html += "<tr class='bg-navy'>";
+            html += "<th width='50px'>No.</th>";
+            html += "<th>Room Type</th>";
+            html += "<th>Rate Type</th>";
+            html += "<th>Sessions</th>";
+            html += "<th>Nama Plan</th>";
+            html += "<th>Price</th>";
+            html += "<th>Charge Adult</th>";
+            html += "<th>Charge Child</th>";
+            html += "<th>Status</th>";
+            html += "</tr>";
+            html += "</thead>";
+            html += "<tbody>";
+  
+            $.each(val, function (i, row) {
+              html += "<tr id='data' kode='" + row.id + "'>";
+              html += "<td>" + (i + 1) + "</td>";
+              html += "<td>" + row.nama_type + "</td>";
+              html += "<td>" + row.keterangan + "</td>";
+              html += "<td>" + row.nama_sessions + "</td>";
+              html += "<td>" + row.nama_plan + "</td>";
+              html += "<td> Rp." + number_format(row.price, 0, ",", ".") + "</td>";
+              html += "<td>" + row.charges_adult + "</td>";
+              html += "<td>" + row.charges_child + "</td>";
+              html +=
+              "<td>" +
+              (row.status == 1
+                ? "<label class='badge label label-success'>AKTIF</label>"
+                : "<label class='badge label label-danger'>NON AKTIF</label>") +
+              "</td>";
+              html += "</tr>";
+            });
+  
+            html += "</tbody>";
+            html += "</table>";
+          } else {
+            html += "<div class='alert alert-warning'>Data tidak ditemukan</div>";
+          }
+  
+          $(".list").html(html);
+          $(".loadingdata").hide();
+        },
+        error: function (error) {
+          console.log("Error:", error);
+          $(".loadingdata").hide();
+          $(".list").html(
+            "<div class='alert alert-danger'>Gagal memuat data.</div>"
+          );
+        },
+      });
+    }
+  </script>
+  
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">&nbsp;Room Rates</h3>
+          <div class="box-tools pull-right">
+            <button class="add no-border btn-success btn-sm">
+              <i class="fa fa-plus"></i>&nbsp;Add
+            </button>
+          </div>
+        </div>
+        <div class="box-body">
+          <div class="row">
+            <div class="clearfix">&nbsp;</div>
+            <div class="col-xs-12">
+              <div class="list table-responsive"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal modal-simpan no-print" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-hidden="true"
+          >
+            ×
+          </button>
+          <h4 class="modal-title">
+            <i class="icon fa fa-warning"></i>&nbsp;&nbsp;Room Rates
+          </h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-horizontal">
+            <div class="form-group">
+              <div class="col-md-8">
+                <input type="hidden" name="id" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Room Type</label>
+              <div class="col-md-9">
+                <select class="form-control" name="id_roomtype"></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Rate Type</label>
+              <div class="col-md-9">
+                <select class="form-control" name="id_ratetype"></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Sessions</label>
+              <div class="col-md-9">
+                <select class="form-control" name="id_sessions"></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Room Plan</label>
+              <div class="col-md-9">
+                <select class="form-control" name="id_plan"></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Price</label>
+              <div class="col-md-9">
+                <input type="text" class="form-control" name="price" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Charges Adult</label>
+              <div class="col-md-9">
+                <input type="text" class="form-control" name="charges_adult" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label">Charges Child</label>
+              <div class="col-md-9">
+                <input type="text" class="form-control" name="charges_child" />
+              </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">Status</label>
+                <div class="col-md-9">
+                  <select class="form-control" name="status">
+                    <option value="1">AKTIF</option>
+                    <option value="0">NON AKTIF</option>
+                  </select>
+                </div>
+              </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="pull-right">
+            <button class="simpan btn bg-blue">
+              <i class="fa fa-save"></i>&nbsp;Save
+            </button>
+            <button class="hapus btn bg-red">
+              <i class="fa fa-minus"></i>&nbsp;Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

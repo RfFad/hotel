@@ -1,0 +1,119 @@
+<script type="text/javascript">
+  $(document).ready(function(){
+    var url = '<%= url %>roomfloor';
+    $(".isibody").load(url);
+    $(".roomfloor").click(function(){
+      var url = '<%= url %>roomfloor';
+      $(".isibody").load(url);
+      return false;
+    })
+    $(".roomtype").click(function(){
+      var url = '<%= url %>roomtype';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".room").click(function(){
+      var url = '<%= url %>room';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".sessions").click(function(){
+      var url = '<%= url %>sessions';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".roomplan").click(function(){
+      var url = '<%= url %>roomplan';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".ratetype").click(function(){
+      var url = '<%= url %>ratetype';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".roomrates").click(function(){
+      var url = '<%= url %>roomrates';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".roomstatus").click(function(){
+      var url = '<%= url %>roomstatus';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".roombreakdown").click(function(){
+      var url = '<%= url %>roombreakdown';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".extracharge_group").click(function(){
+      var url = '<%= url %>extracharge_group';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".extracharge").click(function(){
+      var url = '<%= url %>extracharge';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".employee_status").click(function(){
+      var url = '<%= url %>employee_status';
+      $(".isibody").load(url);
+      return false;
+    });
+    $(".employee_shift").click(function(){
+      var url = '<%= url %>employee_shifts';
+      $(".isibody").load(url);
+      return false;
+    })
+    $(".employee_type").click(function(){
+      var url = '<%= url %>employee_type';
+      $(".isibody").load(url);
+      return false;
+    })
+  });
+</script>
+<li class="header">MAIN NAVIGATION</li>
+<li class="treeview">
+  <a href="#">
+      <i class="fa fa-home"></i>
+      <span>Rooms</span>
+      <i class='fa fa-angle-left pull-right'></i>
+  </a>
+  <ul class="treeview-menu">
+    <li><a href="#" class="roomfloor">Room Floor</a></li>
+    <li><a href="#" class="roomtype">Room Type</a></li>
+    <li><a href="#" class="room">Room Setup</a></li>
+    <li><a href="#" class="sessions">Sessions</a></li>
+    <li><a href="#" class="roomplan">Room Plan</a></li>
+    <li><a href="#" class="roomrates">Room Rate</a></li>
+    <li><a href="#" class="roomstatus">Room Status</a></li>
+    <li><a href="#" class="ratetype">Rate Type</a></li>
+    <li><a href="#" class="roombreakdown">Room Breakdown</a></li>
+  </ul>
+</li>
+<li class="treeview">
+  <a href="#">
+    <i class="fa fa-money"></i>
+    <span>Extra Charge</span>
+    <i class='fa fa-angle-left pull-right'></i>
+  </a>
+  <ul class="treeview-menu">
+    <li><a href="#" class="extracharge_group">Extra Charge Group</a></li>
+    <li><a href="#" class="extracharge">Extra Charge</a></li>
+  </ul>
+</li>
+<li class="treeview">
+  <a href="#">
+    <i class="fa fa-user"></i>
+    <span>Employee</span>
+    <i class='fa fa-angle-left pull-right'></i>
+  </a>
+  <ul class="treeview-menu">
+    <li><a href="#" class="employee_status">Employee Status</a></li>
+    <li><a href="#" class="employee_type">Employee Type</a></li>
+    <li><a href="#" class="employee_shift">Employee Shift</a></li>
+    <li><a href="#">Employee List</a></li>
+  </ul>
+</li>

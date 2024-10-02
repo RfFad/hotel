@@ -1,0 +1,181 @@
+<script>
+  $(document).ready(function(){
+    $("[name='tgl']").datepicker({
+      dateFormat: "dd-mm-yy",
+    });
+    $("[name='tgl']").datepicker('setDate', new Date());
+    pasien();
+    $(".search").click(function(){
+      pasien();
+    });
+    $(".list").on("click",".detailpasien",function(){
+      var nik = $(this).attr("nik");
+      var namapasien = detailpasien(nik);
+      alert(namapasien);
+    })
+  });
+  function formatDate(date,jenis) {
+				date = date.split("-");
+        month = date[1];
+        day = date[0];
+        year = date[2];
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+		if (jenis==1)
+    	return [year, month, day].join('-');
+		else
+			return [day, month, year].join('-');
+	}
+  function detailtaskid(no_reg){
+    var url = "antrean/getlisttask";
+    var pasien = $.ajax({
+        url: '<%= url %>antrean_post',
+        type: 'post',
+        data: {url:url,no_reg:no_reg},
+        async: false
+    }).responseText;
+    var val = JSON.parse(pasien);
+    return parseInt(val.jml)-1;
+  }
+  function detailpasien(nik){
+    var tgl = $("[name='tgl']").val();
+    tgl = formatDate(tgl,1);
+    var url = "Peserta/nik/"+nik+"/tglSEP/"+tgl;
+    var pasien = $.ajax({
+        url: '<%= url %>vclaim_get',
+        type: 'post',
+        data: {url:url},
+        async: false
+    }).responseText;
+    var val = JSON.parse(pasien);
+    // console.log(val);
+    return val.data.peserta.nama;
+  }
+  function pasien(){
+    var tgl = $("[name='tgl']").val();
+    tgl = formatDate(tgl,1);
+    $.ajax({
+        url: '<%= url %>pasienkontrol',
+        type: 'post',
+        data: {tgl : tgl},
+        success: function (result) {
+          detail(result)
+          // console.log(result);
+        },
+        error: function (result) {
+          console.log(result);
+        }
+    });
+  }
+  function taskid(noreg){
+    $.each($(".list .task"), function(i, val) {
+        var noreg = $(this).attr("no_reg");
+        var url = "antrean/getlisttask";
+        var task = $.ajax({
+            url: '<%= url %>antrean_post',
+            type: 'post',
+            data: {no_reg : noreg,url: url},
+            success: function (result) {
+              $(".list .task_"+noreg).text(result.jml-1);
+            },
+            error: function (result) {
+              console.log(result);
+            }
+        });
+    });
+  }
+	function detail(pk){
+		$(".loadingdata").show();
+    var tgl = $("[name='tgl']").val();
+    tgl = formatDate(tgl,1);
+    var url = "antrean/pendaftaran/tanggal/" +tgl;
+    var html = "";
+    $.ajax({
+        url: '<%= url %>antrean_get',
+        type: 'post',
+        data: {url : url},
+        success: function (result) {
+          console.log(pk);
+          var s = pk;
+          // console.log(result);
+          html = "<table class='table table-hover'>";
+          html += "<tr class='bg-navy'>";
+          html += "<th>No.</th>";
+          html += "<th>No. Referensi</th>";
+          html += "<th>Kode Booking</th>";
+          html += "<th>No. RM</th>";
+          html += "<th>Antrian</th>";
+          html += "<th>Poliklinik</th>";
+          html += "<th width=150px>Sumber</th>";
+          html += "<th>Task</th>";
+          html += "<th width=220px>Status</th>";
+          html += "</tr>";
+          var jeniskunjungan = "";
+          var status = "";
+          var action = "";
+          var n = 1;
+          $.each(result.data, function(i, value) {
+            console.log(value);
+            var p = s.find(a => a.no_reg === value.kodebooking);
+            if (p!=undefined){
+              switch (value.jeniskunjungan) {
+                case 1 : jeniskunjungan = "<label class='label label-success'>Rujukan FKTP</label>";break;
+                case 2 : jeniskunjungan = "<label class='label label-warning'>Rujukan Internal</label>";break;
+                case 3 : jeniskunjungan = "<label class='label label-danger'>Kontrol</label>";break;
+                case 4 : jeniskunjungan = "<label class='label label-primary'>Rujukan Antar RS</label>";break;
+              }
+              switch (value.status) {
+                case "Selesai dilayani" : status = "<label class='label label-success'>"+value.status+"</label>";break;
+                case "Belum dilayani" : status = "<label class='label label-warning'>"+value.status+"</label>";break;
+                case "Batal" : status = "<label class='label label-danger'>"+value.status+"</label>";break;
+              }
+              html += "<tr class='data "+(value.status=="Batal" ? "bg-teal" : "")+"' sumber='"+value.sumberdata+"' no_antrian='"+value.noantrean+"' noreferensi='"+value.nomorreferensi+"' tgl='"+tgl+"' no_reg='"+value.kodebooking+"' no_pasien='"+value.norekammedis+"' tujuan_poli='"+value.kodepoli+"' id_dokter='"+value.kodedokter+"'>";
+              html += "<td>"+(i+1)+"</td>";
+              html += "<td>"+(value.nomorreferensi)+"</td>";
+              html += "<td>"+(value.kodebooking)+"</td>";
+              html += "<td>"+(value.norekammedis)+" | "+p.nama_pasien+"</td>";
+              html += "<td>"+(value.noantrean)+"</td>";
+              html += "<td>"+(value.kodepoli)+"</td>";
+              html += "<td>"+(value.sumberdata)+"</td>";
+              html += "<td><label class='label label-primary'><span class='task task_"+value.kodebooking+"' no_reg='"+value.kodebooking+"'>"+(p.task=="" && p.task==null ? 0 : p.task)+"</span></label></td>";
+              html += "<td><b>"+(status)+"</b> | "+(jeniskunjungan)+"</td>";
+              html += "</tr>";
+            }
+          });
+          html += "</table>";
+          $(".list").html(html);
+        },
+        error: function(data){
+          console.log(data);
+        }
+    }).done(function(){
+      $(".loadingdata").hide();
+    });
+	}
+</script>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box box-primary">
+			<div class="box-header with-border">
+        <a href="#" class="back"><i class="fa fa-arrow-left"></i></a><h3 class="box-title">&nbsp;List Antrian</h3>
+      </div>
+			<div class="box-body">
+        <div class="row">
+          <div class="col-xs-12 pull-right">
+                <div class="col-xs-12 col-md-12 input-group">
+                  <input type="text" name="tgl" class="form-control" readonly autocomplete="off">
+                  <span class="input-group-btn"><button class="search btn btn-success"><i class="fa fa-search"></i></button></span>
+                </div>
+          </div>
+          <div class="clearfix">&nbsp;</div>
+				  <div class="col-xs-12">
+            <div class="list table-responsive"></div>
+          </div>
+        </div>
+      </div>
+		</div>
+	</div>
+</div>

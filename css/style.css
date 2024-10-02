@@ -1,0 +1,85 @@
+#preview {
+    width:800px;
+    height:500px;
+    border: 5px solid white;
+    overflow: auto;
+    -moz-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+    -webkit-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+    -khtml-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+    box-shadow:rgba(200,200,200,1) 0 4px 18px;
+    background: url(../img/grid.png) repeat;
+}
+#previewweb {
+    margin-left:100px;
+}
+#canvas {
+        float:left;
+        border: 5px solid white;
+	    background:#eee;
+        -moz-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+        -webkit-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+        -khtml-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+        box-shadow:rgba(200,200,200,1) 0 4px 18px;
+}
+#webcam {
+        float:left;
+        border: 5px solid white;
+	    background:#eee;
+        -moz-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+        -webkit-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+        -khtml-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+        box-shadow:rgba(200,200,200,1) 0 4px 18px;
+}
+#flash {
+	position:absolute;
+	top:0px;
+	left:0px;
+	z-index:5000;
+	width:100%;
+	height:500px;
+	background-color:#c00;
+	display:none;
+}
+#status{
+    display: none;
+    position: absolute;
+    border-width:1px;
+    border-style:solid;
+    padding:5px;
+    -moz-border-radius:3px;
+    -khtml-border-radius:3px;
+    -webkit-border-radius:3px;
+    border-radius:3px;
+    color:#555;
+    z-index: 5000;
+    clear: both;
+    width:200px;
+    font-weight: bold;
+    -moz-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+    -webkit-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+    -khtml-box-shadow:rgba(200,200,200,1) 0 4px 18px;
+    box-shadow:rgba(200,200,200,1) 0 4px 18px;
+    border-color: #e6db55;
+    background-color: #ffffe0;
+}
+#loading {
+    padding: 20px;
+    width: 100px;
+    height: 20px;
+    line-height:20px;
+    position: absolute;
+    text-align:center;
+    -moz-box-shadow:rgba(9,9,9,1) 0 4px 18px;
+    -webkit-box-shadow:rgba(9,9,9,1) 0 4px 18px;
+    -khtml-box-shadow:rgba(9,9,9,1) 0 4px 18px;
+    box-shadow:rgba(9,9,9,1) 0 4px 18px;
+    -moz-border-radius:5px;
+    -khtml-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
+    font-weight: bold;
+    background-color:#000;
+    opacity: .50;
+    filter:Alpha(Opacity=50);
+    color:#fff;
+}

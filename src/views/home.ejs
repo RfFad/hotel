@@ -1,0 +1,321 @@
+<DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title id="juduls">HOTEL</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/ionicons.min.css">
+    <link rel="stylesheet" href="css/AdminLTE.css">
+    <link rel="stylesheet" href="css/defaultTheme.css">
+    <link rel="stylesheet" href="css/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="css/jquery-ui.css">
+    <link rel="stylesheet" href="js/select2/select2.css">
+    <link rel="icon" href="img/logo_mjkn.png" type="image/x-icon" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <script src="js/jquery-barcode.js"></script>
+    <script src="js/select2/select2.js"></script>
+    <script src="js/jquery-qrcode.js"></script>
+    <script src="js/jquery.mask.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.mask.min.js"></script>
+    <script src="js/html2canvas.js"></script>
+    <script src="js/html2pdf.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- <script src="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script> -->
+    <!-- <script src="plugins/bootstrap-typeahead/bootstrap-typeahead.js" type="text/javascript"></script> -->
+    <script src="js/jquery.fixedheadertable.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/slimScroll/jquery.slimscroll.min.js"></script>
+    <script src="js/demo.js"></script>
+    <!-- <script defer src="app.js"></script> -->
+</head>
+<script type="text/javascript">
+  $(window).bind('beforeunload',function(){
+    $('.loadingdata').show();
+  });
+  $(document).ajaxSend(function() {
+    $('.loadingdata').show();
+  });
+  $(document).ajaxStop(function() {
+    $('.loadingdata').hide();
+  });
+  function number_format (number, decimals, dec_point, thousands_sep) {
+    // Strip all characters but numerical ones.
+    number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+    var n = !isFinite(+number) ? 0 : +number,
+        prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+        sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+        dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+        s = '',
+        toFixedFix = function (n, prec) {
+            var k = Math.pow(10, prec);
+            return '' + Math.round(n * k) / k;
+        };
+    // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+    s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+    if (s[0].length > 3) {
+        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+    }
+    if ((s[1] || '').length < prec) {
+        s[1] = s[1] || '';
+        s[1] += new Array(prec - s[1].length + 1).join('0');
+    }
+    return s.join(dec);
+	}
+	$(document).ready(function(){
+        $(".logout").click(function(){
+            window.location = "<%= url %>login/logout";
+        });
+        $(".setup").click(function(){
+            var url = '<%= url %>setup';
+            $(".isibody").load(url);
+        });
+        $(".menumaster").click(function(){
+          var url = '<%= url %>menumaster';
+          $(".listmenu").load(url);
+          $("body").removeClass("layout-top-nav");
+          $(".logo").removeClass("hide");
+          $("aside").removeClass("hide");
+          $("body").addClass("sidebar-mini").addClass("sidebar-collapse").addClass("sidebar-fixed");
+          $(".isibody").html("");
+            // window.location = "<%= url %>pasien";
+        });
+        $(".listskdp").click(function(){
+          var url = '<%= url %>listskdp';
+          $(".isibody").load(url);
+        });
+        $(".listantrian").click(function(){
+          var url = '<%= url %>listantrian';
+          $(".isibody").load(url);
+        });
+        $(".listsep").click(function(){
+          var url = '<%= url %>listsep';
+          $(".isibody").load(url);
+        });
+        $(".rekapklaim").click(function(){
+          var url = '<%= url %>rekapklaim';
+          $(".isibody").load(url);
+        });
+        $(".isibody").on("click",".back",function(){
+            window.location = "<%= url %>";
+        });
+        $(".home").on("click",function(){
+            window.location = "<%= url %>";
+        });
+        var formattgl = "dd-mm-yy";
+        $("[name='tgl1'],[name='tgl2']").datepicker({
+            dateFormat: formattgl,
+        });
+    });
+</script>
+<body class="skin-blue layout-top-nav">
+    <div class="wrapper">
+        <header class="main-header">
+            <a href="#" class="logo hide">
+              <span class="logo-mini"><img size="20px" height="30px" style="margin-top: 10px" src="img/hotel.png" alt="User Image"></span>
+              <span class="logo-lg"><b>HOTEL</b></span>
+            </a>
+            <nav class="navbar navbar-static-top" role="navigation">
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button"><span class="sr-only">Toggle navigation</span></a>
+                <div class="container">
+                    <div class="navbar-header">
+                        <!-- <a class="navbar-brand home"><b>HOTEL</b></a> -->
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                    </div>
+                    <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                        <ul class="nav navbar-nav">
+                            <li><a href="#" class="home"><i class="fa fa-home"></i>&nbsp;&nbsp;Home</a></li>
+                            <li><a href="#" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+
+        </header>
+        <aside class="main-sidebar hide">
+          <section class="sidebar">
+            <!-- <div class="user-panel">
+              <div class="pull-left image">
+                <img src="img/room-service.png" class="img-circle" alt="User Image">
+              </div>
+              <div class="pull-left info">
+                <p>Administrator</p>
+                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+              </div>
+            </div> -->
+            <ul class="sidebar-menu listmenu">
+              <li class="header">MAIN NAVIGATION</li>
+            </ul>
+          </section>
+        </aside>
+        <div class="content-wrapper">
+            <section class="content-header"></section>
+            <section class="content isibody">
+                <div class="row">
+                  <div class="col-xs-12">
+                  	<div class="box box-info menuutama">
+                  		<div class="box-header with-border"><h3 class='box-title'>Menu Utama</h3></div>
+                  		<div class="box-body">
+                        <div class="kotak_menu">
+                  					<div class="alert" style="border-radius: 90px">
+                  							<a class="menu setup" href="#">
+                  									<p class="text-center">
+                  											<img src="img/settings.png">
+                  									</p>
+                  									<div class="menutitle">Setup</div>
+                  							</a>
+                  					</div>
+                  			</div>
+                        <div class="kotak_menu">
+                  					<div class="alert" style="border-radius: 90px">
+                  							<a class="menu menumaster" href="#">
+                  									<p class="text-center">
+                  											<img src="img/list.png">
+                  									</p>
+                  									<div class="menutitle">Master</div>
+                  							</a>
+                  					</div>
+                  			</div>
+                        <div class="kotak_menu">
+                  					<div class="alert" style="border-radius: 90px">
+                  							<a class="menu menumaster" href="#">
+                  									<p class="text-center">
+                  											<img src="img/bell.png">
+                  									</p>
+                  									<div class="menutitle">Front Office</div>
+                  							</a>
+                  					</div>
+                  			</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </section>
+        </div>
+        <footer class="main-footer" id="footers">
+            <div class="pull-right hidden-xs"></div>
+            <strong>Copyright &copy; 2024 <a href="#">BINARIS</a></strong>
+        </footer>
+    </div>
+    <div class='loadingdata modal'>
+        <div class='text-center align-middle' style="margin-top: 200px">
+            <div class="col-xs-3 col-sm-3 col-lg-5"></div>
+            <div class="alert col-xs-6 col-sm-6 col-lg-2" style="background-color: white;border-radius: 10px;">
+                <div class="overlay" style="font-size:50px;color:#696969"><img src="img/load.gif" width="150px"></div>
+                <div style="font-size:18px;font-weight:bold;color:#696969;margin-top:-30px;margin-bottom:20px" class="caption">Loading</div>
+            </div>
+            <div class="col-xs-3 col-sm-3 col-lg-5"></div>
+        </div>
+    </div>
+    <style>
+      .btn{
+        padding: 9px 12px;
+      }
+    	.amcharts-export-menu-top-right {
+    		top: 10px;
+    		right: 0;
+    	}
+    	#chartdiv > div > div > a { display: none !important; }
+    	.alert a{
+    		color: #313233;
+    		text-decoration: none;
+    		margin: 0px auto;
+    		text-align: center;
+    	}
+    	.kotak_menu{
+    		width: 110px;
+    		height: 128px;
+    		float: left;
+    	}
+    	.kotak_menu img{
+    		width:64px;
+    	}
+    	img.mjkn{
+    		width:120px;
+    		height:64px;
+    		margin-left: -25px;
+    	}
+    	.box {
+                border-radius: 10px;
+        }
+    	@media (max-width: 768px){
+    		.kotak_menu{
+    			width: 100px;
+    			height: 120px;
+    			float: left;
+    		}
+    		.kotak_menu img{
+    			width:64px;
+    		}
+    		.menutitle{
+    			font-size: 10px;
+    		}
+    		img.mjkn{
+    			width:124px;
+    			height:64px;
+    			margin-left: -30px;
+    		}
+    	}
+    </style>
+    <style type="text/css">
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            margin-top: -15px;
+        }
+
+        .select2-container--default .select2-selection--single {
+            padding: 16px 0px;
+            border-color: #d2d6de;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #3c8dbc;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #f4f4f4;
+        }
+        .mobile-margin {margin-top:10px;}
+        .tableFixHead {
+          overflow-y: auto; /* make the table scrollable if height is more than 200 px  */
+          height: 500px; /* gives an initial height of 200px to the table */
+        }
+        .tableFixHead thead th {
+          position: sticky; /* make the table heads sticky */
+          top: 0px; /* table head will be placed from the top of the table and sticks to it */
+        }
+        .tableFixHead table {
+          border-collapse: collapse; /* make the table borders collapse to each other */
+          width: 100%;
+        }
+        .tableFixHead th,
+        .tableFixHead td {
+          padding: 8px 16px;
+        }
+        .tableFixHead th {
+          background: #001f3f;
+        }
+        div:where(.swal2-container) div:where(.swal2-popup) { font-size: 14px;}
+        @media (max-width: 768px){
+            .bawah {
+                padding: 15px 15px 5px 15px;
+            }
+            .menu_bwh img{
+                width: 36px;
+            }
+            .bawah .menutitle{
+                width: 36px;
+                font-size: 10px;
+            }
+            .navbar-collapse ul {
+              height: 110vh;
+            }
+        }
+    </style>
+</body>

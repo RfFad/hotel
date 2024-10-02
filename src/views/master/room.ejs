@@ -1,0 +1,265 @@
+<script type="text/javascript">
+  $(document).ready(function(){
+    list();
+    $(".add").click(function(){
+      $(".modal-simpan").modal("show");
+      roomfloor();
+      $("[name='id']").val("");
+    })
+    $(".simpan").click(function(){
+      simpan();
+    })
+    $(".hapus").click(function(){
+      var id = $("[name='id']").val()
+      Swal.fire({
+        title: "Do you want to delete?",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          hapus(id)
+          Swal.fire("Saved!", "", "success");
+        }
+      });
+    })
+    $(".list").on("click","tr#data",function(){
+      var id = $(this).attr("kode");
+      roomfloor();
+      detail(id);
+    })
+  });
+  function simpan(){
+    var room_number = $("[name='room_number']").val();
+    var id_floor = $("[name='id_floor']").val();
+    var id_type = $("[name='id_type']").val();
+    var id = $("[name='id']").val();
+    var status = $("[name='status']").val();
+    if (id!=""){
+      var url = '<%= url %>editroom';
+    } else {
+      var url = '<%= url %>simpanroom';
+    }
+    var formData = {
+      id : id,
+      room_number: room_number,
+      id_floor: id_floor,
+      id_type: id_type,
+      status: status
+		}
+		$.ajax({
+        url: url,
+        type: 'post',
+        data: formData,
+        success: function (data) {
+					Swal.fire({
+					  title: "Berhasil",
+					  text: "Data berhasil "+(id=="" ? "disimpan" : "diedit"),
+					  icon: "success",
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 1500
+					});
+          $(".modal-simpan").modal("hide");
+        },
+        error: function (data) {
+          console.log(data)
+        }
+    }).done(function(){
+      list();
+    })
+  }
+  function roomfloor(id=""){
+    var url = '<%= url %>listfloor';
+		$.ajax({
+        url: url,
+        type: 'post',
+        success: function (row) {
+          $.each(row.data,function(key,val){
+            var o = $("<option/>", {value: val.id, text: val.nama_floor});
+            $("[name='id_floor']").append(o);
+            $("[name='id_floor'] option[value='" + id + "']").prop('selected',true);
+            $("[name='id_floor']").trigger('change');
+          });
+          roomtype()
+        }
+    });
+  }
+  function roomtype(id=""){
+    var url = '<%= url %>listtype';
+		$.ajax({
+        url: url,
+        type: 'post',
+        success: function (row) {
+          $.each(row.data,function(key,val){
+            var o = $("<option/>", {value: val.id, text: val.nama_type});
+            $("[name='id_type']").append(o);
+            $("[name='id_type'] option[value='" + id + "']").prop('selected',true);
+            $("[name='id_type']").trigger('change');
+          })
+        }
+    });
+  }
+  function detail(id){
+    var url = '<%= url %>detailroom';
+    var formData = {
+      id : id
+		}
+		$.ajax({
+        url: url,
+        type: 'get',
+        data: formData,
+        success: function (row) {
+          var val = row.data[0];
+					$("[name='id']").val(val.id);
+          $("[name='room_number']").val(val.room_number);
+          $("[name='status']").val(val.status);
+          $("[name='id_floor'] option[value='" + val.id_floor + "']").prop('selected',true);
+          $("[name='id_type'] option[value='" + val.id_type + "']").prop('selected',true);
+          $(".modal-simpan").modal("show");
+          console.log(val);
+        },
+        error: function (data) {
+          console.log(data)
+        }
+    })
+  }
+  function hapus(id){
+    var url = '<%= url %>hapusroom';
+    var formData = {
+      id : id
+		}
+		$.ajax({
+        url: url,
+        type: 'post',
+        data: formData,
+        success: function (row) {
+          Swal.fire({
+            position: "top-end",
+					  title: "Berhasil",
+					  text: "Data berhasil dihapus",
+					  icon: "info",
+            showConfirmButton: false,
+            timer: 1500
+					});
+          list();
+          $(".modal-simpan").modal("hide");
+        },
+        error: function (data) {
+          console.log(data)
+        }
+    })
+  }
+  function list(){
+    $(".loadingdata").show();
+    var html = "";
+		$.ajax({
+				url: '<%= url %>listroom',
+				type: 'post',
+				success: function (result) {
+					var val = result.data;
+          if (result.jml>0){
+            html += "<table class='table table-hover'>";
+            html += "<thead>";
+            html += "<tr class='bg-navy'>";
+            html += "<th width='50px'>No.</th>";
+            html += "<th>Room Number</th>";
+            html += "<th class='text-center' width=320px>Floor</th>";
+            html += "<th class='text-center' width=320px>Room Type</th>";
+            html += "<th width='100px'>Status</th>";
+            html += "</thead>";
+            html += "<tbody>";
+            $.each(val,function(i,row){
+              html += "<tr id='data' kode='"+row.id+"'>";
+              html += "<td>"+(i+1)+"</td>";
+              html += "<td>"+row.room_number+"</td>";
+              html += "<td class='text-center'>"+row.nama_floor+"</td>";
+              html += "<td class='text-center'>"+row.nama_type+"</td>";
+              html += "<td>"+(row.status==1 ? "<label class='badge label label-success'>AKTIF</label>" : "<label class='badge label label-danger'>NON AKTIF</label>")+"</td>";
+              html += "</tr>";
+            });
+            html += "</tbody>";
+            html += "</table>";
+          } else {
+            html += "<div class='alert alert-warning'>Data tidak ditemukan</div>";
+          }
+          $(".list").html(html);
+					console.log(val);
+				},
+				error: function(data){
+					console.log(data);
+				}
+		});
+  }
+</script>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box box-primary">
+			<div class="box-header with-border">
+        <h3 class="box-title">&nbsp;Room Setup</h3>
+        <div class="box-tools pull-right">
+            <button class="add no-border btn-success btn-sm"><i class="fa fa-plus"></i>&nbsp;Add</button>
+        </div>
+      </div>
+			<div class="box-body">
+        <div class="row">
+          <div class="clearfix">&nbsp;</div>
+				  <div class="col-xs-12">
+            <div class="list table-responsive"></div>
+          </div>
+        </div>
+      </div>
+		</div>
+	</div>
+</div>
+<div class='modal modal-simpan no-print' role="dialog">
+    <div class='modal-dialog'>
+        <div class='modal-content'>
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class='modal-title'><i class="icon fa fa-warning"></i>&nbsp;&nbsp;Room Setup</h4>
+            </div>
+            <div class='modal-body'>
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-md-8">
+                            <input type="hidden" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label">Number Room</label>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" name="room_number">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label">Floor</label>
+                        <div class="col-md-9">
+                            <select class="form-control" name="id_floor"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label">Room Type</label>
+                        <div class="col-md-9">
+                            <select class="form-control" name="id_type"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label">Status</label>
+                        <div class="col-md-9">
+                            <select class="form-control" name="status">
+                              <option value="1">AKTIF</option>
+                              <option value="0">NON AKTIF</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <div class="pull-right">
+                    <button class="simpan btn bg-blue"><i class="fa fa-save"></i>&nbsp;Save</button>
+                    <button class="hapus btn bg-red"><i class="fa fa-minus"></i>&nbsp;Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

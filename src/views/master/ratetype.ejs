@@ -1,0 +1,166 @@
+<script type="text/javascript">
+  $(document).ready(function(){
+    list();
+    $("[name='weekend_5']").change(function(){
+      if ($("[name='weekend_5']").is(':checked')){
+         $("[name='weekday_5']").prop('checked', false);
+      }
+    })
+    $("[name='weekday_5']").change(function(){
+      if ($("[name='weekday_5']").is(':checked')){
+         $("[name='weekend_5']").prop('checked', false);
+      }
+    })
+    $("[name='weekend_6']").change(function(){
+      if ($("[name='weekend_6']").is(':checked')){
+         $("[name='weekday_6']").prop('checked', false);
+      }
+    })
+    $("[name='weekday_6']").change(function(){
+      if ($("[name='weekday_6']").is(':checked')){
+         $("[name='weekend_6']").prop('checked', false);
+      }
+    })
+    $("[name='weekend_0']").change(function(){
+      if ($("[name='weekend_0']").is(':checked')){
+         $("[name='weekday_0']").prop('checked', false);
+      }
+    })
+    $("[name='weekday_0']").change(function(){
+      if ($("[name='weekday_0']").is(':checked')){
+         $("[name='weekend_0']").prop('checked', false);
+      }
+    })
+    $(".simpan").click(function(){
+      var weekday = {};
+      $.each($(".weekday"),function(i,key){
+        var kode = $(this).attr("kode");
+        weekday[kode] = $(this).is(':checked') ? 1 : 0;
+      });
+      var weekend = {};
+      $.each($(".weekend"),function(i,key){
+        var kode = $(this).attr("kode");
+        weekend[kode] = $(this).is(':checked') ? 1 : 0;
+      });
+      var url = '<%= url %>editratetype';
+      var formData = {
+  			weekend : JSON.stringify(weekend),
+        weekday: JSON.stringify(weekday)
+  		}
+  		$.ajax({
+          url: url,
+          type: 'post',
+          data: formData,
+          success: function (data) {
+  					Swal.fire({
+  					  title: "Berhasil",
+  					  text: "Data berhasil disimpan",
+  					  icon: "success",
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 1500
+  					});
+            $(".loadingdata").hide();
+          },
+          error: function (data) {
+            console.log(data)
+          }
+      })
+    })
+  });
+  function list(){
+    $(".loadingdata").show();
+    var html = "";
+		$.ajax({
+				url: '<%= url %>listratetype',
+				type: 'get',
+				success: function (result) {
+					var val = result.data;
+          $.each(val,function(i,key){
+            var w = JSON.parse(key.hari);
+            if (key.id=="weekday"){
+              $.each(w,function(n,row){
+                if (row){
+                  $("[name='weekday_"+n+"']").prop('checked', true);
+                } else {
+                  $("[name='weekday_"+n+"']").prop('checked', false);
+                }
+              });
+            } else {
+              $.each(w,function(n,row){
+                if (row){
+                  $("[name='weekend_"+n+"']").prop('checked', true);
+                } else {
+                  $("[name='weekend_"+n+"']").prop('checked', false);
+                }
+              });
+            }
+          });
+        }
+    });
+  }
+</script>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box box-primary">
+			<div class="box-header with-border">
+        <h3 class="box-title">&nbsp;Rate Type</h3>
+      </div>
+			<div class="box-body">
+        <div class="row">
+				  <div class="col-xs-12">
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Weekday</label>
+                    <div class="col-md-9">
+                      <div class="col-xs-12">
+                        <div class="checkbox">
+                          <label><input class="weekday" kode="1" name="weekday_1" type="checkbox" value='1'>Senin</label>
+                        </div>
+                        <div class="checkbox">
+                          <label><input class="weekday" kode="2" name="weekday_2" type="checkbox" value='1'>Selasa</label>
+                        </div>
+                        <div class="checkbox">
+                          <label><input class="weekday" kode="3" name="weekday_3" type="checkbox" value='1'>Rabu</label>
+                        </div>
+                        <div class="checkbox">
+                          <label><input class="weekday" kode="4" name="weekday_4" type="checkbox" value='1'>Kamis</label>
+                        </div>
+                        <div class="checkbox weekday_5">
+                          <label><input class="weekday" kode="5" name="weekday_5" type="checkbox" value='1'>Jumat</label>
+                        </div>
+                        <div class="checkbox weekday_6">
+                          <label><input class="weekday" kode="6" name="weekday_6" type="checkbox" value='1'>Sabtu</label>
+                        </div>
+                        <div class="checkbox weekday_0">
+                          <label><input class="weekday" kode="0" name="weekday_0" type="checkbox" value='1'>Minggu</label>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Weekend</label>
+                    <div class="col-md-9">
+                      <div class="col-xs-12">
+                        <div class="checkbox weekend_5">
+                          <label><input class="weekend" kode="5" name="weekend_5" type="checkbox" value='1'>Jumat</label>
+                        </div>
+                        <div class="checkbox weekend_6">
+                          <label><input class="weekend" kode="6" name="weekend_6" type="checkbox" value='1'>Sabtu</label>
+                        </div>
+                        <div class="checkbox weekend_0">
+                          <label><input class="weekend" kode="0" name="weekend_0" type="checkbox" value='1'>Minggu</label>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="box-footer">
+        <button type="button" class="btn btn-block btn-success simpan">SIMPAN</button>
+      </div>
+		</div>
+	</div>
+</div>

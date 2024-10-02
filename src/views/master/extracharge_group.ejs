@@ -1,0 +1,322 @@
+<script>
+  $(document).ready(function () {
+    list();
+    $(".add").click(function () {
+      $(".modal-simpan").modal("show");
+      clearForm();
+    });
+    $(".simpan").click(function () {
+      simpan();
+    });
+    $(".hapus").click(function () {
+      var id = $("[name='id']").val();
+      if (id) {
+        Swal.fire({
+          title: "Do you want to delete?",
+          showCancelButton: true,
+          confirmButtonText: "Yes",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            hapus(id);
+            Swal.fire("Deleted!", "The rate has been deleted.", "success");
+          }
+        });
+      } else {
+        Swal.fire("Error", "No record selected to delete.", "error");
+      }
+    });
+
+
+    $(".list").on("click", "tr#data", function(){
+      var id = $(this).attr("kode");
+      detail(id);
+    })
+  });
+   // Function to clear the form inputs
+   function clearForm() {
+        $("[name='id']").val('');
+        $("[name='extracharge_group']").val('');
+        $("[name='income_group']").val('');
+        
+  }
+  //detail
+  function detail(id) {
+    var url = "<%= url %>detailcharge_group";
+    var formData = { id: id };
+
+    $.ajax({
+      url: url,
+      type: "GET",
+      data: formData,
+      success: function (row) {
+        var val = row.data[0];
+        $("[name='id']").val(val.id);
+        $("[name='extracharge_group']").val(val.extracharge_group);
+        $("[name='outlet_posting']").val(val.outlet_posting);
+        $("[name='income_group']").val(val.income_group);
+        $("[name='parameter_qty']").val(val.parameter_qty);
+        $("[name='pos_mobile']").val(val.pos_mobile);
+        $("[name='pajak']").val(val.pajak);
+        $("[name='status']").val(val.status);
+        $(".modal-simpan").modal("show");
+      },
+      error: function (data) {
+        console.log(data);
+      },
+    });
+  }
+
+  //hapus
+  function hapus(id) {
+    var url = '<%= url %>hapuscharge_group';
+    var formData = { id: id };
+
+    $.ajax({
+      url: url,
+      type: 'post',
+      data: formData,
+      success: function (row) {
+        Swal.fire({
+          position: "top-end",
+          title: "Success",
+          text: "Data has been deleted.",
+          icon: "info",
+          showConfirmButton: false,
+          timer: 1500
+        });
+        list();
+        $(".modal-simpan").modal("hide");
+      },
+      error: function (data) {
+        console.log(data);
+      }
+    });
+  }
+  //simpan
+  function simpan() {
+    var extracharge_group = $("[name='extracharge_group']").val();
+    var id = $("[name='id']").val();
+    var outlet_posting = $("[name='outlet_posting']").val();
+    var income_group = $("[name='income_group']").val();
+    var parameter_qty = $("[name='parameter_qty']").val();
+    var pos_mobile = $("[name='pos_mobile']").val();
+    var pajak = $("[name='pajak']").val();
+    var status = $("[name='status']").val();
+    var url = id ? "<%= url %>editcharge_group" : "<%= url %>simpancharge_group";
+    var formData = {
+      id: id,
+      extracharge_group: extracharge_group,
+      outlet_posting: outlet_posting,
+      income_group: income_group,
+      parameter_qty: parameter_qty,
+      pos_mobile: pos_mobile,
+      pajak: pajak,
+      status: status
+    };
+
+    $.ajax({
+      url: url,
+      type: "post",
+      data: formData,
+      success: function (data) {
+        Swal.fire({
+          title: "Success",
+          text: "Data has been " + (id ? "updated" : "saved"),
+          icon: "success",
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        $(".modal-simpan").modal("hide");
+        list();
+      },
+      error: function (data) {
+        console.log(data);
+      },
+    });
+  }
+ 
+  //list
+  function list() {
+    $(".loadingdata").show();
+    var html = "";
+    $.ajax({
+      url: "<%= url %>listcharge_group",
+      type: "POST",
+      dataType: "json",
+      success: function (result) {
+        var val = result.data;
+        if (result.jml > 0) {
+          html += "<table class='table table-hover'>";
+          html += "<thead>";
+          html += "<tr class='bg-navy'>";
+          html += "<th width='50px'>No.</th>";
+          html += "<th>Extracharge Group</th>";
+          html += "<th>Outlet Posting</th>";
+          html += "<th>Income Group</th>";
+          html += "<th>Parameter QTY</th>";
+          html += "<th>Pos Mobile</th>";
+          html += "<th>Pajak</th>";
+          html += "<th>Status</th>";
+          html += "</tr>";
+          html += "</thead>";
+          html += "<tbody>";
+
+          $.each(val, function (i, row) {
+            html += "<tr id='data' kode='" + row.id + "'>";
+            html += "<td>" + (i + 1) + "</td>";
+            html += "<td>" + row.extracharge_group + "</td>";
+            html += "<td>" + (row.outlet_posting == 1 ? "YES" : "NO") + "</td>";
+            html += "<td>" + row.income_group + "</td>";
+            html += "<td>" + (row.parameter_qty == 1 ? "YES" : "NO") + "</td>";
+            html += "<td>" + (row.pos_mobile == 1 ? "YES" : "NO") + "</td>";
+            html += "<td>" + (row.pajak == 1 ? "YES" : "NO") + "</td>";
+            html +=
+              "<td>" +
+              (row.status == 1
+                ? "<label class='badge label label-success'>AKTIF</label>"
+                : "<label class='badge label label-danger'>NON AKTIF</label>") +
+              "</td>";
+            html += "</tr>";
+          });
+
+          html += "</tbody>";
+          html += "</table>";
+        } else {
+          html += "<div class='alert alert-warning'>Data tidak ditemukan</div>";
+        }
+
+        $(".list").html(html);
+        $(".loadingdata").hide();
+      },
+      error: function (error) {
+        console.log("Error:", error);
+        $(".loadingdata").hide();
+        $(".list").html(
+          "<div class='alert alert-danger'>Gagal memuat data.</div>"
+        );
+      },
+    });
+  }
+</script>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">&nbsp;Room Extra Charge Group</h3>
+        <div class="box-tools pull-right">
+          <button class="add no-border btn-success btn-sm">
+            <i class="fa fa-plus"></i>&nbsp;Add
+          </button>
+        </div>
+      </div>
+      <div class="box-body">
+        <div class="row">
+          <div class="clearfix">&nbsp;</div>
+          <div class="col-xs-12">
+            <div class="list table-responsive"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-simpan no-print" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-hidden="true"
+        >
+          ×
+        </button>
+        <h4 class="modal-title">
+          <i class="icon fa fa-warning"></i>&nbsp;&nbsp;Floor
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <div class="col-md-8">
+              <input type="hidden" name="id" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Extracharge Group</label>
+            <div class="col-md-9">
+              <input
+                type="text"
+                class="form-control"
+                name="extracharge_group"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Outlet Posting</label>
+            <div class="col-md-9">
+              <select class="form-control" name="outlet_posting">
+                <option value="1">YES</option>
+                <option value="0">NO</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Income Group</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" name="income_group" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Parameter QTY</label>
+            <div class="col-md-9">
+              <select class="form-control" name="parameter_qty">
+                <option value="1">YES</option>
+                <option value="0">NO</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Pos Mobile</label>
+            <div class="col-md-9">
+              <select class="form-control" name="pos_mobile">
+                <option value="1">YES</option>
+                <option value="0">NO</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">pajak</label>
+            <div class="col-md-9">
+              <select class="form-control" name="pajak">
+                <option value="1">YES</option>
+                <option value="0">NO</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Status</label>
+            <div class="col-md-9">
+              <select class="form-control" name="status">
+                <option value="1">AKTIF</option>
+                <option value="0">NON AKTIF</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="pull-right">
+          <button class="simpan btn bg-blue">
+            <i class="fa fa-save"></i>&nbsp;Save
+          </button>
+          <button class="hapus btn bg-red">
+            <i class="fa fa-minus"></i>&nbsp;Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,175 @@
+<script>
+  $(document).ready(function(){
+    $("[name='tgl']").datepicker({
+      dateFormat: "dd-mm-yy",
+    });
+    $("[name='tgl']").datepicker('setDate', new Date());
+    pasien();
+    $(".search").click(function(){
+      pasien();
+    });
+    $(".list").on("click",".detailpasien",function(){
+      var nik = $(this).attr("nik");
+      var namapasien = detailpasien(nik);
+      alert(namapasien);
+    })
+  });
+  function formatDate(date,jenis) {
+				date = date.split("-");
+        month = date[1];
+        day = date[0];
+        year = date[2];
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+		if (jenis==1)
+    	return [year, month, day].join('-');
+		else
+			return [day, month, year].join('-');
+	}
+  function detailtaskid(no_reg){
+    var url = "antrean/getlisttask";
+    var pasien = $.ajax({
+        url: '<%= url %>antrean_post',
+        type: 'post',
+        data: {url:url,no_reg:no_reg},
+        async: false
+    }).responseText;
+    var val = JSON.parse(pasien);
+    return parseInt(val.jml)-1;
+  }
+  function detailpasien(nik){
+    var tgl = $("[name='tgl']").val();
+    tgl = formatDate(tgl,1);
+    var url = "Peserta/nik/"+nik+"/tglSEP/"+tgl;
+    var pasien = $.ajax({
+        url: '<%= url %>vclaim_get',
+        type: 'post',
+        data: {url:url},
+        async: false
+    }).responseText;
+    var val = JSON.parse(pasien);
+    // console.log(val);
+    return val.data.peserta.nama;
+  }
+  function pasien(){
+    var tgl = $("[name='tgl']").val();
+    tgl = formatDate(tgl,1);
+    var url = "RencanaKontrol/ListRencanaKontrol/tglAwal/" +tgl+ "/tglAkhir/" +tgl+ "/filter/2";
+    $.ajax({
+        url: '<%= url %>vclaim_get',
+        type: 'post',
+        data: {url : url},
+        success: function (result) {
+          detail(result)
+          // console.log(result);
+        },
+        error: function (result) {
+          console.log(result);
+        }
+    });
+  }
+	function detail(pk){
+		$(".loadingdata").show();
+    var tgl = $("[name='tgl']").val();
+    tgl = formatDate(tgl,1);
+    $.ajax({
+        url: '<%= url %>pasienkontrol',
+        type: 'post',
+        data: {tgl : tgl},
+        success: function (result) {
+          // console.log(pk.data.list);
+          var s = pk.data.list;
+          // console.log(result);
+          html  = "<table class='table table-hover table-striped'>";
+          html += "<tr class='bg-navy'>";
+          html += "<th class='text-center' style='vertical-align:middle' rowspan='2'>No.</th>";
+          html += "<th style='vertical-align:middle' colspan='2' class='text-center'>No. Surat</th>";
+          html += "<th class='text-center' style='vertical-align:middle' rowspan='2'>No. BPJS</th>";
+          html += "<th class='text-center' style='vertical-align:middle' rowspan='2'>Nama Pasien</th>";
+          html += "<th class='text-center' style='vertical-align:middle' rowspan='2'>Poliklinik</th>";
+          html += "<th class='text-center' style='vertical-align:middle' rowspan='2'>Status</th>";
+          html += "</tr>";
+          html += "<tr class='bg-navy'>";
+          html += "<th class='text-center'>BPJS</th>";
+          html += "<th class='text-center'>SIMRS</th>";
+          html += "</tr>";
+          var sama = "";
+          var sama2 = "";
+          var action = "";
+          var n = 1;
+          $.each(result, function(i, value) {
+            console.log(value);
+            var p = s.find(a => a.noKartu === value.no_bpjs);
+            if (p!=undefined){
+              console.log(p)
+              sama  = value.skdp!=p.noSuratKontrol ? "yellow" : "green";
+              sama  = (value.skdp== "" && p.noSuratKontrol=="" && value.noreferensi=="" && value.parameterantrian=="") || (value.skdp!= "" && p.noSuratKontrol=="") ? "red" : sama;
+              sama2  = value.skdp!=p.noSuratKontrol ? "bg-yellow" : "";
+              sama2  = (value.skdp== "" && p.noSuratKontrol=="") || (value.skdp!= "" && p.noSuratKontrol=="") ? "" : sama2;
+              action  = value.skdp!=p.noSuratKontrol ? "updateskdp" : "";
+              action  = (value.skdp== "" && p.noSuratKontrol=="" && value.noreferensi=="" && value.parameterantrian=="") || (value.skdp!= "" && p.noSuratKontrol=="") ? "buatupdateskdp" : action;
+              html += "<tr class='"+action+" listpk' nama_pasien='"+value.nama_pasien+"' skdp='"+value.skdp+"' poli_kontrol='"+value.tujuan_poli+"' polikontrol='"+value.briging+"' nosurat='"+p.noSuratKontrol+"' no_reg='"+value.no_reg+"' no_rm='"+value.no_pasien+"' no_bpjs='"+value.no_bpjs+"'>";
+              html += "<td class='text-center'><h2 class='badge bg-"+sama+" text-bold' style='font-size:14px'>"+(n++)+"</h2></td>";
+              html += "<td>";
+              html += "<label class='label label-primary' style='font-size:12px'>"+p.noSuratKontrol+"</label></td>";
+              html += "<td>"+(value.skdp=="" || value.skdp==null ? "" : "<label class='label label-primary' style='font-size:12px'>"+value.skdp+"</label>")+"<div class='clearfix'>&nbsp;</div><div class='label label-success' style='font-size:12px'>"+value.no_reg+" | "+value.briging+"</div></td>";
+              html += "<td class='text-center'>"+value.no_bpjs+"</td>";
+              html += "<td>"+value.nama_pasien+(value.noreferensi!="" && value.noreferensi!=null ? "<div class='clearfix'>&nbsp;</div><div class='badge bg-green'>No. Referensi : "+value.noreferensi+"</div>" : (value.errorskdp!="" && value.errorskdp!=null ? "<div class='clearfix'>&nbsp;</div><div class='badge bg-red'>"+value.errorskdp+"</div>" : ""))+"</td>";
+              html += "<td>"+value.tujuan_poli+" | "+value.namapoli+"</td>";
+              warna = value.status_kontrol!="" ? "danger" : "success";
+              sk = value.status_kontrol=="ranap" ? "(Lepas Rawat)" : "";
+              html += "<td class='text-center'><label class='label label-"+warna+"'>"+(value.status_kontrol!="" && value.status_kontrol!=null ? "Kontrol "+sk : "Pasien Rujukan")+"</label></td>";
+              html += "</tr>";
+            }
+          });
+          // console.log(detailtaskid("20240830101914"));
+          html += "</table>";
+          $(".list").html(html);
+        },
+        error: function(data){
+          console.log(data);
+        }
+    }).done(function(){
+      $.each($(".list .namapasien"), function(i, val) {
+          var noreg = $(this).attr("no_reg");
+          var p = rows.find(a => a.no_reg === noreg);
+          console.log(noreg);
+          console.log(p);
+          if (p!=undefined){
+            $(this).text(p.nama_pasien);
+            var taskid = p.task=="" || p.task==null ? 0 : p.task;
+            $(".taskid_"+noreg).text(taskid);
+          } else {
+            $(this).text("-");
+            $(".taskid_"+noreg).text(0);
+          }
+      });
+    });
+	}
+</script>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box box-primary">
+			<div class="box-header with-border">
+        <a href="#" class="back"><i class="fa fa-arrow-left"></i></a><h3 class="box-title">&nbsp;List SKDP</h3>
+      </div>
+			<div class="box-body">
+        <div class="row">
+          <div class="col-xs-12 pull-right">
+                <div class="col-xs-12 col-md-12 input-group">
+                  <input type="text" name="tgl" class="form-control" readonly autocomplete="off">
+                  <span class="input-group-btn"><button class="search btn btn-success"><i class="fa fa-search"></i></button></span>
+                </div>
+          </div>
+          <div class="clearfix">&nbsp;</div>
+				  <div class="col-xs-12">
+            <div class="list table-responsive"></div>
+          </div>
+        </div>
+      </div>
+		</div>
+	</div>
+</div>
