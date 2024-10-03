@@ -2,10 +2,16 @@
   $(document).ready(function () {
     list();
     ispersen();
+
+    //format number
+    
     $(".add").click(function () {
       $(".modal-simpan").modal("show");
       clearForm();
       extracharge_group()
+      $("input[name='is_persen'][value='0']").prop("checked", true)
+      $('#price-label').text('Price');
+      $('#percentage-symbol').hide();
     });
     $(".simpan").click(function () {
       simpan();
@@ -34,15 +40,9 @@
       detail(id);
     });
   });
-  // Function to clear the form inputs
-  function clearForm() {
-    $("[name='id']").val("");
-    $("[name='id_extragroup']").val("");
-    $("[name='income_group']").val("");
-  }
   //detail
   function detail(id) {
-    var url = "<%= url %>detailcharge_group";
+    var url = "<%= url %>detailcharge";
     var formData = { id: id };
 
     $.ajax({
@@ -52,12 +52,20 @@
       success: function (row) {
         var val = row.data[0];
         $("[name='id']").val(val.id);
-        $("[name='extracharge_group']").val(val.extracharge_group);
-        $("[name='outlet_posting']").val(val.outlet_posting);
-        $("[name='income_group']").val(val.income_group);
-        $("[name='parameter_qty']").val(val.parameter_qty);
-        $("[name='pos_mobile']").val(val.pos_mobile);
-        $("[name='pajak']").val(val.pajak);
+        extracharge_group(val.id_extragroup);
+        $("[name='extracharge_type']").val(val.extracharge_type);
+        $("[name='nama_extracharge']").val(val.nama_extracharge);
+        $("input[name='is_persen'][value='"+ val.is_persen + "']").prop("checked", true);
+        if(val.is_persen == '1'){
+          $('#price-label').text('Percentage %');
+        $('#price').attr('placeholder', 'Enter percentage');
+        $('#percentage-symbol').show();// Tampilkan simbol persentase
+        }else{
+          $('#price-label').text('Price');
+        $('#price').attr('placeholder', 'Enter price');
+        $('#percentage-symbol').hide();  // Sembunyikan simbol persentase
+        }
+        $("[name='price']").val(val.price);
         $("[name='status']").val(val.status);
         $(".modal-simpan").modal("show");
       },
@@ -66,10 +74,16 @@
       },
     });
   }
-
+  function clearForm() {
+      $("[name='id']").val('');
+      $("[name='id_extragroup']").empty();
+      $("[name='nama_extracharge']").val('');
+      $("[name='price']").val('');
+    }
+  
   //hapus
   function hapus(id) {
-    var url = "<%= url %>hapuscharge_group";
+    var url = "<%= url %>hapuscharge";
     var formData = { id: id };
 
     $.ajax({
@@ -97,10 +111,11 @@
   function ispersen(){
     $('input[name="is_persen"]').change(function() {
       var isPersen = $('input[name="is_persen"]:checked').val();
+      var currentPrice = $('#price').val();
       
       if (isPersen == '1') {
         // If "YES" is selected, treat as percentage
-        $('#price-label').text('Percentage');
+        $('#price-label').text('Percentage %');
         $('#price').attr('placeholder', 'Enter percentage').val('').focus();
         $('#percentage-symbol').show();  // Show the % symbol
       } else {
@@ -109,6 +124,7 @@
         $('#price').attr('placeholder', 'Enter price').val('').focus();
         $('#percentage-symbol').hide();  // Hide the % symbol
       }
+      $('#price').val(currentPrice);
     });
   }
   //simpan
@@ -116,14 +132,16 @@
     var id_extragroup = $("[name='id_extragroup']").val();
     var id = $("[name='id']").val();
     var extracharge_type = $("[name='extracharge_type']").val();
-    var is_persen = $("[name='is_persen']").val();
+    var nama_extracharge = $("[name='nama_extracharge']").val();
+    var is_persen = $("input[name='is_persen']:checked").val();
     var price = $("[name='price']").val();
     var status = $("[name='status']").val();
-    var url = id ? "<%= url %>editcharge_group" : "<%= url %>simpancharge";
+    var url = id ? "<%= url %>editcharge" : "<%= url %>simpancharge";
     var formData = {
       id: id,
       id_extragroup: id_extragroup,
       extracharge_type: extracharge_type,
+      nama_extracharge: nama_extracharge,
       is_persen: is_persen,
       price: price,
       status: status,
@@ -186,8 +204,9 @@
           html += "<thead>";
           html += "<tr class='bg-navy'>";
           html += "<th width='50px'>No.</th>";
-          html += "<th>Extracharge Group</th>";
-          html += "<th>Extracharge Type</th>";
+          html += "<th>EXTRACHARGE NAME</th>";
+          html += "<th>EXTRACHARGE GROUP</th>";
+          html += "<th>EXTRACHARGE TYPE</th>";
           html += "<th>Price</th>";
           html += "<th>Status</th>";
           html += "</tr>";
@@ -197,12 +216,10 @@
           $.each(val, function (i, row) {
             html += "<tr id='data' kode='" + row.id + "'>";
             html += "<td>" + (i + 1) + "</td>";
-            html += "<td>" + row.extracharg + "</td>";
-            html += "<td>" + (row.outlet_posting == 1 ? "YES" : "NO") + "</td>";
-            html += "<td>" + row.income_group + "</td>";
-            html += "<td>" + (row.parameter_qty == 1 ? "YES" : "NO") + "</td>";
-            html += "<td>" + (row.pos_mobile == 1 ? "YES" : "NO") + "</td>";
-            html += "<td>" + (row.pajak == 1 ? "YES" : "NO") + "</td>";
+            html += "<td>" + row.nama_extracharge + "</td>";
+            html += "<td>" + row.nama_extragroup + "</td>";
+            html += "<td>" + row.extracharge_type + "</td>";
+            html += "<td>" + (row.is_persen == 1 ?  row.price + "<span>%</span>" : "Rp." + number_format(row.price, 0, ",", ".")) + "</td>";
             html +=
               "<td>" +
               (row.status == 1
@@ -230,6 +247,8 @@
       },
     });
   }
+  // Format number function
+
 </script>
 <div class="row">
   <div class="col-xs-12">
@@ -292,6 +311,12 @@
             </div>
           </div>
           <div class="form-group">
+            <label class="col-md-3 control-label">Nama Extracharge</label>
+            <div class="col-md-9">
+                <input type="text" class="form-control" name="nama_extracharge">
+            </div>
+        </div>
+          <div class="form-group">
             <label class="col-md-3 control-label" for="is_persen">Is Persen</label>
             <div class="col-md-9">
               <div class="radio-inline">
@@ -312,33 +337,6 @@
               <input type="text" class="form-control" name="price" id="price" />
               <div class="input-group-append" id="percentage-symbol" style="display: none;">
               </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-3 control-label">Parameter QTY</label>
-            <div class="col-md-9">
-              <select class="form-control" name="parameter_qty">
-                <option value="1">YES</option>
-                <option value="0">NO</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-3 control-label">Pos Mobile</label>
-            <div class="col-md-9">
-              <select class="form-control" name="pos_mobile">
-                <option value="1">YES</option>
-                <option value="0">NO</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-3 control-label">pajak</label>
-            <div class="col-md-9">
-              <select class="form-control" name="pajak">
-                <option value="1">YES</option>
-                <option value="0">NO</option>
-              </select>
             </div>
           </div>
           <div class="form-group">

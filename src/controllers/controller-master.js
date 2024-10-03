@@ -541,7 +541,7 @@ extracharge(req,res){
     });
 },
 simpan_extracharge(req,res){
-    pool.query(`insert into extracharge(id, id_extragroup, extracharge_type, is_persen, price, status) values (uuid(), ?, ?, ?, ?, ?)`,[req.body.id_extragroup, req.body.extracharge_type, req.body.is_persen, req.body.price, req.body.status],function (err, results) {
+    pool.query(`insert into extracharge(id, id_extragroup, extracharge_type, nama_extracharge, is_persen, price, status) values (uuid(), ?, ?, ?, ?, ?, ?)`,[req.body.id_extragroup, req.body.extracharge_type, req.body.nama_extracharge, req.body.is_persen, req.body.price, req.body.status],function (err, results) {
       if (err) {
           return res.status(500).json({ message: 'Ada kesalahan', error: err });
       }
@@ -549,7 +549,7 @@ simpan_extracharge(req,res){
     })
 },
 listextracharge(req,res){
-    var query  = `SELECT * from extracharge `;
+    var query  = `SELECT extracharge.*, extracharge_group.extracharge_group AS nama_extragroup from extracharge INNER JOIN extracharge_group ON extracharge.id_extragroup = extracharge_group.id; `;
     pool.query(query,function (err, results) {
       if (err) {
           return res.status(500).json({ message: 'Ada kesalahan', error: err });
@@ -574,13 +574,13 @@ detailextracharge(req,res){
     })
 },
 edit_extracharge(req, res) {
-    const { id, id_extragroup, extracharge_type, is_persen, price, status } = req.body;
+    const { id, id_extragroup, extracharge_type, nama_extracharge, is_persen, price, status } = req.body;
 
     pool.query(
         `UPDATE extracharge 
-         SET id_extragroup = ?, extracharge_type = ?, is_persen = ?, price = ?, status = ? 
+         SET id_extragroup = ?, extracharge_type = ?, nama_extracharge = ?, is_persen = ?, price = ?, status = ? 
          WHERE id = ?`,
-        [id_extragroup, extracharge_type, is_persen, price, status, id],
+        [id_extragroup, extracharge_type, nama_extracharge, is_persen, price, status, id],
         function (err, results) {
             if (err) {
                 return res.status(500).json({ message: 'Ada kesalahan', error: err });
