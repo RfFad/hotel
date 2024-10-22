@@ -86,6 +86,17 @@
           $(".isibody").html("");
             // window.location = "<%= url %>pasien";
         });
+        $(".checkin").click(function(){
+          var url = '<%= url %>menucheckin';
+          $(".listmenu").load(url);
+          $("body").removeClass("layout-top-nav");
+          $(".logo").removeClass("hide");
+          $("aside").removeClass("hide");
+          $("body").addClass("sidebar-mini").addClass("sidebar-collapse").addClass("sidebar-fixed");
+          $(".isibody").html("");
+            // window.location = "<%= url %>pasien";
+        });
+
         $(".listskdp").click(function(){
           var url = '<%= url %>listskdp';
           $(".isibody").load(url);
@@ -190,6 +201,16 @@
                   											<img src="img/bell.png">
                   									</p>
                   									<div class="menutitle">Front Office</div>
+                  							</a>
+                  					</div>
+                  			</div>
+                        <div class="kotak_menu">
+                  					<div class="alert" style="border-radius: 90px">
+                  							<a class="menu checkin" href="#">
+                  									<p class="text-center">
+                  											<img src="img/bell.png">
+                  									</p>
+                  									<div class="menutitle">Checkin</div>
                   							</a>
                   					</div>
                   			</div>

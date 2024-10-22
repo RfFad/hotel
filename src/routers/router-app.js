@@ -2,10 +2,12 @@ const router = require("express").Router();
 const homeController = require("../controllers").home;
 const masterController = require("../controllers").master;
 const verifyUser = require("../configs/verify");
+const checkinController = require("../controllers/controller-checkin")
 
-router.get("/", homeController.home);
-router.get("/setup", homeController.setup);
-router.get("/menumaster", homeController.menumaster);
+router.get("/", verifyUser.isLogin, homeController.home, );
+router.get("/setup", verifyUser.isLogin, homeController.setup);
+router.get("/menumaster", verifyUser.isLogin, homeController.menumaster);
+router.get("/menucheckin", verifyUser.isLogin, homeController.menucheckin);
 
 router.get("/roomfloor", masterController.roomfloor);
 router.get("/detailfloor", masterController.detailfloor);
@@ -103,6 +105,7 @@ router.post("/listemployee_type", masterController.listemploye_type);
 router.get("/detailemployee_type", masterController.detailemployee_type);
 router.post("/editemployee_type", masterController.editemployee_type)
 router.post("/hapusemployee_type", masterController.hapusemployee_type)
-
+//checkin
+router.get("/checkin", checkinController.checkin)
 
 module.exports = router;

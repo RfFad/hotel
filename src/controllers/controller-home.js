@@ -78,6 +78,13 @@ module.exports ={
             userid: req.session.userid,
         });
     },
+    menucheckin(req,res){
+        res.render("checkin/menucheckin",{
+            url: baseurl.url,
+            userName: req.session.username,
+            userid: req.session.userid,
+        });
+    },
     listskdp(req,res){
         res.render("listskdp",{
             url: baseurl.url,
