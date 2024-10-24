@@ -105,6 +105,20 @@ router.post("/listemployee_type", masterController.listemploye_type);
 router.get("/detailemployee_type", masterController.detailemployee_type);
 router.post("/editemployee_type", masterController.editemployee_type)
 router.post("/hapusemployee_type", masterController.hapusemployee_type)
+//employee list
+router.post("/simpanemployee_list", masterController.simpanemployee_list);
+router.get("/employee_list", masterController.employee_list);
+router.post("/listemployee_list", masterController.listemployee_list);
+router.get("/detailemployee_list", masterController.detailemployee_list);
+router.post("/editemployee_list", masterController.editemployee_list)
+router.post("/hapusemployee_list", masterController.hapusemployee_list)
+//employee list
+router.post("/simpanbanquet_time", masterController.simpanbanquet_time);
+router.get("/banquet_time", masterController.banquet_time);
+router.post("/listbanquet_time", masterController.listbanquet_time);
+router.get("/detailbanquet_time", masterController.detailbanquet_time);
+router.post("/editbanquet_time", masterController.editbanquet_time)
+router.post("/hapusbanquet_time", masterController.hapusbanquet_time)
 //checkin
 router.get("/checkin", checkinController.checkin)
 

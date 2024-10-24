@@ -1,0 +1,413 @@
+<script type="text/javascript">
+  $(document).ready(function(){
+    list();
+    $(".add").click(function(){
+      $(".modal-simpan").modal("show");
+      employee_status();
+      $("[name='id']").val("");
+    })
+    $(".simpan").click(function(){
+      simpan();
+    })
+    $(".hapus").click(function(){
+      var id = $("[name='id']").val()
+      Swal.fire({
+        title: "Do you want to delete?",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          hapus(id)
+          Swal.fire("Saved!", "", "success");
+        }
+      });
+    })
+    $(".list").on("click","tr#data",function(){
+      var id = $(this).attr("kode");
+      employee_status();
+      detail(id);
+    })
+  });
+  function simpan(){
+    var nik = $("[name='nik']").val();
+    var nama_e = $("[name='nama_e']").val();
+    var no_ktp = $("[name='no_ktp']").val();
+    var tempat_lahir = $("[name='tempat_lahir']").val();
+    var tgl_lahir = $("[name='tgl_lahir']").val();
+    var jk = $("[name='jk']").val();
+    var agama = $("[name='agama']").val();
+    var alamat = $("[name='alamat']").val();
+    var no_telp = $("[name='no_telp']").val();
+    var no_hp = $("[name='no_hp']").val();
+    var email = $("[name='email']").val();
+    var departement = $("[name='departement']").val();
+    var id_emplo_status = $("[name='id_emplo_status']").val();
+    var id_emplo_type = $("[name='id_emplo_type']").val();
+    var join_date = $("[name='join_date']").val();
+    var npwp = $("[name='npwp']").val();
+    var nama_bank = $("[name='nama_bank']").val();
+    var no_rek = $("[name='no_rek']").val();
+    var atas_nama = $("[name='atas_nama']").val();
+    var id = $("[name='id']").val();
+    var status = $("[name='status']").val();
+    if (id!=""){
+      var url = '<%= url %>editemployee_list';
+    } else {
+      var url = '<%= url %>simpanemployee_list';
+    }
+    var formData = {
+      id : id,
+      nik : nik,
+      nama_e : nama_e, 
+      no_ktp : no_ktp,
+      tempat_lahir : tempat_lahir,
+      tgl_lahir : tgl_lahir,
+      jk : jk,
+      agama : agama,
+      alamat : alamat,
+      no_telp : no_telp,
+      no_hp : no_hp,
+      email : email,
+      departement : departement,
+      id_emplo_status : id_emplo_status,
+      id_emplo_type : id_emplo_type,
+      join_date : join_date,
+      npwp : npwp,
+      nama_bank : nama_bank,
+      no_rek : no_rek,
+      atas_nama : atas_nama,
+      status : status
+        }
+        $.ajax({
+        url: url,
+        type: 'post',
+        data: formData,
+        success: function (data) {
+                    Swal.fire({
+                      title: "Berhasil",
+                      text: "Data berhasil "+(id=="" ? "disimpan" : "diedit"),
+                      icon: "success",
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 1500
+                    });
+          $(".modal-simpan").modal("hide");
+        },
+        error: function (data) {
+          console.log(data)
+        }
+    }).done(function(){
+      list();
+    })
+  }
+  function employee_status(id=""){
+    var url = '<%= url %>listemployee_status';
+        $.ajax({
+        url: url,
+        type: 'post',
+        success: function (row) {
+          $.each(row.data,function(key,val){
+            var o = $("<option/>", {value: val.id, text: val.nama_status});
+            $("[name='id_emplo_status']").append(o);
+            $("[name='id_emplo_status'] option[value='" + id + "']").prop('selected',true);
+            $("[name='id_emplo_status']").trigger('change');
+          });
+          employee_type()
+        }
+    });
+  }
+  function employee_type(id=""){
+    var url = '<%= url %>listemployee_type';
+        $.ajax({
+        url: url,
+        type: 'post',
+        success: function (row) {
+          $.each(row.data,function(key,val){
+            var o = $("<option/>", {value: val.id, text: val.nama_type});
+            $("[name='id_emplo_type']").append(o);
+            $("[name='id_emplo_type'] option[value='" + id + "']").prop('selected',true);
+            $("[name='id_emplo_type']").trigger('change');
+          })
+        }
+    });
+  }
+  function detail(id){
+    var url = '<%= url %>detailemployee_list';
+    var formData = {
+      id : id
+        }
+        $.ajax({
+        url: url,
+        type: 'get',
+        data: formData,
+        success: function (row) {
+          var val = row.data[0];
+                    $("[name='id']").val(val.id);
+          $("[name='nik']").val(val.nik);
+          $("[name='nama_e']").val(val.nama_e);
+          $("[name='no_ktp']").val(val.no_ktp);
+          $("[name='tempat_lahir']").val(val.tempat_lahir);
+          $("[name='tgl_lahir']").val(val.tgl_lahir);
+          $("[name='jk']").val(val.jk);
+          $("[name='agama']").val(val.agama);
+          $("[name='alamat']").val(val.alamat);
+          $("[name='no_telp']").val(val.no_telp);
+          $("[name='no_hp']").val(val.no_hp);
+          $("[name='email']").val(val.email);
+          $("[name='departement']").val(val.departement);
+          $("[name='id_emplo_status'] option[value='" + val.id_emplo_status + "']").prop('selected',true);
+          $("[name='id_emplo_type'] option[value='" + val.id_emplo_type + "']").prop('selected',true);
+          $("[name='join_date']").val(val.join_date);
+          $("[name='npwp']").val(val.npwp);
+          $("[name='nama_bank']").val(val.nama_bank);
+          $("[name='no_rek']").val(val.no_rek);
+          $("[name='atas_nama']").val(val.atas_nama);
+          $("[name='status']").val(val.status);          
+          $(".modal-simpan").modal("show");
+          console.log(val);
+        },
+        error: function (data) {
+          console.log(data)
+        }
+    })
+  }
+  function hapus(id){
+    var url = '<%= url %>hapusemployee_list';
+    var formData = {
+      id : id
+        }
+        $.ajax({
+        url: url,
+        type: 'post',
+        data: formData,
+        success: function (row) {
+          Swal.fire({
+            position: "top-end",
+                      title: "Berhasil",
+                      text: "Data berhasil dihapus",
+                      icon: "info",
+            showConfirmButton: false,
+            timer: 1500
+                    });
+          list();
+          $(".modal-simpan").modal("hide");
+        },
+        error: function (data) {
+          console.log(data);
+        }
+    })
+  }
+  function list(){
+    $(".loadingdata").show();
+    var html = "";
+        $.ajax({
+                url: '<%= url %>listemployee_list',
+                type: 'post',
+                success: function (result) {
+                    var val = result.data;
+          if (result.jml>0){
+            html += "<table class='table table-hover'>";
+            html += "<thead>";
+            html += "<tr class='bg-navy'>";
+            html += "<th width='50px'>No.</th>";
+            html += "<th>Nama Employee</th>";
+            html += "<th>Departement</th>";
+            html += "<th class='text-center' width=320px>Employee Status</th>";
+            html += "<th class='text-center' width=320px>Employee Type</th>";
+            html += "<th width='100px'>Status</th>";
+            html += "</thead>";
+            html += "<tbody>";
+            $.each(val,function(i,row){
+              html += "<tr id='data' kode='"+row.id+"'>";
+              html += "<td>"+(i+1)+"</td>";
+              html += "<td>"+row.nama_e+"</td>";
+              html += "<td>"+row.departement+"</td>";
+              html += "<td class='text-center'>"+row.nama_status+"</td>";
+              html += "<td class='text-center'>"+row.nama_type+"</td>";
+              html += "<td>"+(row.status==1 ? "<label class='badge label label-success'>AKTIF</label>" : "<label class='badge label label-danger'>NON AKTIF</label>")+"</td>";
+              html += "</tr>";
+            });
+            html += "</tbody>";
+            html += "</table>";
+          } else {
+            html += "<div class='alert alert-info'>Data tidak ditemukan</div>";
+          }
+          $(".list").html(html);
+          $(".loadingdata").hide();
+        },
+        error: function(data){
+          console.log(data);
+        }
+        });
+  }
+</script>
+
+  <div class="row">
+      <div class="col-xs-12">
+          <div class="box box-primary">
+              <div class="box-header with-border">
+          <h3 class="box-title">&nbsp;Employee List</h3>
+          <div class="box-tools pull-right">
+              <button class="add no-border btn-success btn-sm"><i class="fa fa-plus"></i>&nbsp;Add</button>
+          </div>
+        </div>
+              <div class="box-body">
+          <div class="row">
+            <div class="clearfix">&nbsp;</div>
+                    <div class="col-xs-12">
+              <div class="list table-responsive"></div>
+            </div>
+          </div>
+        </div>
+          </div>
+      </div>
+  </div>
+  <div class='modal modal-simpan no-print' role="dialog">
+      <div class='modal-dialog'>
+          <div class='modal-content'>
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class='modal-title'><i class="icon fa fa-warning"></i>&nbsp;&nbsp;Employee List</h4>
+              </div>
+              <div class='modal-body'>
+                  <div class="form-horizontal">
+                      <div class="form-group">
+                          <div class="col-md-8">
+                              <input type="hidden" name="id">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Nik</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="nik">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Nama Employee</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="nama_e">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">No KTP</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="no_ktp">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Tempat Lahir</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="tempat_lahir">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Tanggal Lahir</label>
+                          <div class="col-md-9">
+                              <input type="date" class="form-control" name="tgl_lahir">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Jenis Kelamin</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="jk">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Agama</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="agama">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Alamat</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="alamat">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">No Telp</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="no_telp">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">No Handphone</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="no_hp">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Email</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="email">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Departement</label>
+                          <div class="col-md-9">
+                              <input type="text" class="form-control" name="departement">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Employee Status</label>
+                          <div class="col-md-9">
+                            <select class="form-control" name="id_emplo_status"></select>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Employee Type</label>
+                          <div class="col-md-9">
+                              <select class="form-control" name="id_emplo_type"></select>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Join Date</label>
+                          <div class="col-md-9">
+                            <input type="date" class="form-control" name="join_date">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">npwp</label>
+                          <div class="col-md-9">
+                            <input type="text" class="form-control" name="npwp">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Nama Bank</label>
+                          <div class="col-md-9">
+                            <input type="text" class="form-control" name="nama_bank">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">No Rekening</label>
+                          <div class="col-md-9">
+                            <input type="text" class="form-control" name="no_rek">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Atas Nama</label>
+                          <div class="col-md-9">
+                            <input type="text" class="form-control" name="atas_nama">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="col-md-3 control-label">Status</label>
+                          <div class="col-md-9">
+                              <select class="form-control" name="status">
+                                <option value="1">AKTIF</option>
+                                <option value="0">NON AKTIF</option>
+                              </select>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class='modal-footer'>
+                  <div class="pull-right">
+                      <button class="simpan btn bg-blue"><i class="fa fa-save"></i>&nbsp;Save</button>
+                      <button class="hapus btn bg-red"><i class="fa fa-minus"></i>&nbsp;Delete</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  
