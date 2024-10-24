@@ -1,0 +1,48 @@
+<script type="text/javascript">
+$(document).ready(function(){
+  var url = '<%= url %>checkin';
+  $(".isibody").load(url);
+    $(".roomfloor").click(function(){
+      var url = '<%= url %>roomfloor';
+      $(".isibody").load(url);
+      return false;
+    })
+})
+</script>
+<li class="header">MAIN NAVIGATION</li>
+<li class="treeview">
+  <a href="#">
+      <i class="fa fa-home"></i>
+      <span>Register</span>
+      <i class='fa fa-angle-left pull-right'></i>
+  </a>
+  <ul class="treeview-menu">
+    <li><a href="#" class="roomfloor">Checkin</a></li>
+    <li><a href="#" class="roomtype">Room Type</a></li>
+  </ul>
+</li>
+<li class="treeview">
+  <a href="#">
+    <i class="fa fa-money"></i>
+    <span>Extra Charge</span>
+
+    <i class='fa fa-angle-left pull-right'></i>
+  </a>
+  <ul class="treeview-menu">
+    <li><a href="#" class="extracharge_group">Extra Charge Group</a></li>
+    <li><a href="#" class="extracharge">Extra Charge</a></li>
+  </ul>
+</li>
+<li class="treeview">
+  <a href="#">
+    <i class="fa fa-user"></i>
+    <span>Employee</span>
+    <i class='fa fa-angle-left pull-right'></i>
+  </a>
+  <ul class="treeview-menu">
+    <li><a href="#" class="employee_status">Employee Status</a></li>
+    <li><a href="#" class="employee_type">Employee Type</a></li>
+    <li><a href="#" class="employee_shift">Employee Shift</a></li>
+    <li><a href="#">Employee List</a></li>
+  </ul>
+</li>

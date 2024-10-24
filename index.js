@@ -24,7 +24,7 @@ app.use(session({
     name: 'FaizAbot',
     cookie: {
         sameSite: true,
-        maxAge: 6000000
+        maxAge: 60 * 60 *1000
     },
 }))
 app.use(flash());

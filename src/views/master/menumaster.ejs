@@ -72,11 +72,24 @@
       $(".isibody").load(url);
       return false;
     })
+
     $(".ratesdiscount").click(function(){
       var url = '<%= url %>ratesdiscount';
       $(".isibody").load(url);
       return false;
     });
+
+    $(".employee_list").click(function(){
+      var url = '<%= url %>employee_list';
+      $(".isibody").load(url);
+      return false;
+    })
+    $(".banquet_time").click(function(){
+      var url = '<%= url %>banquet_time';
+      $(".isibody").load(url);
+      return false;
+    })
+
   });
   
 </script>
@@ -121,6 +134,17 @@
     <li><a href="#" class="employee_status">Employee Status</a></li>
     <li><a href="#" class="employee_type">Employee Type</a></li>
     <li><a href="#" class="employee_shift">Employee Shift</a></li>
-    <li><a href="#">Employee List</a></li>
+    <li><a href="#" class="employee_list">Employee List</a></li>
+  </ul>
+</li>
+<li class="treeview">
+  <a href="#">
+    <i class="fa fa-user"></i>
+    <span>Banquet</span>
+    <i class='fa fa-angle-left pull-right'></i>
+  </a>
+  <ul class="treeview-menu">
+    <li><a href="#" class="banquet_time">Banquet Time</a></li>
+    <li><a href="#" class="">Kategori Event</a></li>
   </ul>
 </li>
