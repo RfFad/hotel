@@ -82,6 +82,13 @@ router.post("/simpanbreakdown", masterController.simpanbreakdown);
 router.get("/detailbreakdown", masterController.detailbreakdown);
 router.post("/hapusbreakdown", masterController.hapusbreakdown);
 router.post("/editbreakdown", masterController.editbreakdown);
+
+router.get("/ratesdiscount", masterController.ratesdiscount);
+router.post("/listdiscount", masterController.listdiscount);
+router.post("/simpandiscount", masterController.simpandiscount);
+router.get("/detaildiscount", masterController.detaildiscount);
+router.post("/hapusdiscount", masterController.hapusdiscount);
+router.post("/editdiscount", masterController.editdiscount);
 //employee status
 router.post("/simpanemployee_status", masterController.simpanemployee_status);
 router.get("/employee_status", masterController.employee_status);

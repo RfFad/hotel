@@ -72,7 +72,13 @@
       $(".isibody").load(url);
       return false;
     })
+    $(".ratesdiscount").click(function(){
+      var url = '<%= url %>ratesdiscount';
+      $(".isibody").load(url);
+      return false;
+    });
   });
+  
 </script>
 <li class="header">MAIN NAVIGATION</li>
 <li class="treeview">
@@ -91,6 +97,7 @@
     <li><a href="#" class="roomstatus">Room Status</a></li>
     <li><a href="#" class="ratetype">Rate Type</a></li>
     <li><a href="#" class="roombreakdown">Room Breakdown</a></li>
+    <li><a href="#" class="ratesdiscount">Rates Discount</a></li>
   </ul>
 </li>
 <li class="treeview">

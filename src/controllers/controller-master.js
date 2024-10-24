@@ -684,8 +684,57 @@ hapusemployee_type(req,res){
       res.status(200).json({ success: true, data: results, jml: results.length});
     })
 },
-
+//rates discount
+ratesdiscount(req,res){
+    res.render("master/ratesdiscount",{
+        url: baseurl.url,
+        userName: req.session.username,
+        userid: req.session.userid,
+    });
+},
+listdiscount(req,res){
+    var query  = `SELECT * from rates_discount `;
+    pool.query(query,function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+detaildiscount(req,res){
+    pool.query(`select * from rates_discount where id = ?`,[req.query.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+simpandiscount(req,res){
+    pool.query(`insert into rates_discount (id, kode, nama, discount, status) values (uuid(), ? , ? , ? , ?)`,[req.body.kode, req.body.nama, req.body.discount, req.body.status],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+editdiscount(req,res){
+    pool.query(`update rates_discount set kode = ?, nama = ?, discount = ?, status = ? where id = ?`,[req.body.kode, req.body.nama, req.body.discount, req.body.status, req.body.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+hapusdiscount(req,res){
+    pool.query(`delete from rates_discount where id = ?`,[req.body.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
 
 
 
 }
+
