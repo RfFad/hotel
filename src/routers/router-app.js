@@ -126,6 +126,14 @@ router.post("/listbanquet_time", masterController.listbanquet_time);
 router.get("/detailbanquet_time", masterController.detailbanquet_time);
 router.post("/editbanquet_time", masterController.editbanquet_time)
 router.post("/hapusbanquet_time", masterController.hapusbanquet_time)
+//
+router.post("/simpankategori_event", masterController.simpankategori_event);
+router.get("/kategori_event", masterController.kategori_event);
+router.post("/listkategori_event", masterController.listkategori_event);
+router.get("/detailkategori_event", masterController.detailkategori_event);
+router.post("/editkategori_event", masterController.editkategori_event)
+router.post("/hapuskategori_event", masterController.hapuskategori_event)
+
 //checkin
 router.get("/checkin", checkinController.checkin)
 

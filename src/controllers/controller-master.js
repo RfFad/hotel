@@ -858,6 +858,54 @@ hapusbanquet_time(req,res){
       res.status(200).json({ success: true, data: results, jml: results.length});
     })
   },
+kategori_event(req,res){
+    res.render("master/kategori_event",{
+        url: baseurl.url,
+        userName: req.session.username,
+        userid: req.session.userid,
+    });
+},
+listkategori_event(req,res){
+    pool.query(`SELECT * from kategori_event`,function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+simpankategori_event(req,res){
+    
+    pool.query(`insert into kategori_event (id, nama) values (uuid(), ?, ?,)`,[req.body.nama],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+editkategori_event(req,res){
+    pool.query(`update kategori_event set nama = ?  where id = ?`,[req.body.nama, req.body.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+detailkategori_event(req,res){
+    pool.query(`select * from kategori_event where id = ?`,[req.query.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+hapuskategori_event(req,res){
+    pool.query(`delete from kategori_event where id = ?`,[req.body.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+  },
 
 }
 
