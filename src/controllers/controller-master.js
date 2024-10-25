@@ -685,8 +685,131 @@ hapusemployee_type(req,res){
       res.status(200).json({ success: true, data: results, jml: results.length});
     })
 },
+employee_list(req,res){
+    res.render("master/employee_list",{
+        url: baseurl.url,
+        userName: req.session.username,
+        userid: req.session.userid,
+    });
+},
+listemployee_list(req, res) {
+    var query = `SELECT d.*, es.nama_status as nama_status, ef.nama_type as nama_type FROM data_e d `;
+    query += `INNER JOIN employee_status es ON es.id = d.id_emplo_status `;
+    query += `INNER JOIN employee_type ef ON ef.id = d.id_emplo_type `;
 
+    // Eksekusi query
+    pool.query(query, function (err, results) {
+        if (err) {
+            return res.status(500).json({ message: 'Ada kesalahan', error: err });
+        }
+        res.status(200).json({ success: true, data: results, jml: results.length });
+    });
+},
+detailemployee_list(req,res){
+    pool.query(`select * from data_e where id = ?`,[req.query.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+simpanemployee_list(req, res) {
+    pool.query(`INSERT INTO data_e (
+        id, nik, nama_e, no_ktp, tempat_lahir, tgl_lahir, jk, agama, alamat, no_telp, no_hp, email, departement, id_emplo_status, id_emplo_type, join_date, npwp, nama_bank, no_rek, atas_nama, status
+    ) VALUES (
+        uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    )`, [
+        req.body.nik, 
+        req.body.nama_e, 
+        req.body.no_ktp, 
+        req.body.tempat_lahir, 
+        req.body.tgl_lahir, 
+        req.body.jk, 
+        req.body.agama, 
+        req.body.alamat, 
+        req.body.no_telp, 
+        req.body.no_hp, 
+        req.body.email, 
+        req.body.departement, 
+        req.body.id_emplo_status, 
+        req.body.id_emplo_type, 
+        req.body.join_date, 
+        req.body.npwp, 
+        req.body.nama_bank, 
+        req.body.no_rek, 
+        req.body.atas_nama, 
+        req.body.status
+    ], function (err, results) {
+        if (err) {
+            return res.status(500).json({ message: 'Ada kesalahan', error: err });
+        }
+        res.status(200).json({ success: true, data: results, affectedRows: results.affectedRows });
+    });
+},
 
+editemployee_list(req,res){
+    pool.query(`update data_e set nik = ? , nama_e = ? , no_ktp = ? , tempat_lahir = ? , tgl_lahir = ? , jk = ? , agama = ? , alamat = ? , no_telp = ? , no_hp = ? , email = ? , departement = ? , id_emplo_status = ? , id_emplo_type = ? , join_date = ? , npwp = ?, nama_bank = ? , no_rek = ? , atas_nama = ? , status = ? where id = ?`,[req.body.nik, req.body.nama_e, req.body.no_ktp, req.body.tempat_lahir, req.body.tgl_lahir, req.body.jk, req.body.agama, req.body.alamat, req.body.no_telp, req.body.no_hp, req.body.email, req.body.departement, req.body.id_emplo_status, req.body.id_emplo_type, req.body.join_date, req.body.npwp, req.body.nama_bank, req.body.no_rek, req.body.atas_nama, req.body.status, req.body.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+hapusemployee_list(req,res){
+    pool.query(`delete from data_e where id = ?`,[req.body.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+banquet_time(req,res){
+    res.render("master/banquet_time",{
+        url: baseurl.url,
+        userName: req.session.username,
+        userid: req.session.userid,
+    });
+},
+listbanquet_time(req,res){
+    pool.query(`SELECT * from banquet_time`,function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+simpanbanquet_time(req,res){
+    pool.query(`insert into banquet_time (id, nama_banquet, time_start, time_end) values (uuid(), ?, ?, ?)`,[req.body.nama_banquet, req.body.time_start, req.body.time_end],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+editbanquet_time(req,res){
+    pool.query(`update banquet_time set nama_banquet = ? , time_start = ? , time_end = ? where id = ?`,[req.body.nama_banquet, req.body.time_start, req.body.time_end, req.body.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+detailbanquet_time(req,res){
+    pool.query(`select * from banquet_time where id = ?`,[req.query.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
+hapusbanquet_time(req,res){
+    pool.query(`delete from banquet_time where id = ?`,[req.body.id],function (err, results) {
+      if (err) {
+          return res.status(500).json({ message: 'Ada kesalahan', error: err });
+      }
+      res.status(200).json({ success: true, data: results, jml: results.length});
+    })
+},
 
 
 }
