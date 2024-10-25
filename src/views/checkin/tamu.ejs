@@ -1,0 +1,147 @@
+<script type="text/javascript">
+  $(document).ready(function () {
+    list();
+    $(".list").on("click","tr#data",function(){
+        var id = $(this).attr("kode")
+        $(".modal-simpan").modal("show")
+    })
+  });
+  function list() {
+    $(".loadingdata").show();
+    var html = "";
+    $.ajax({
+      url: "<%= url %>listcheckin",
+      type: "post",
+      success: function (result) {
+        var val = result.data;
+        if (result.jml > 0) {
+          html += "<table class='table table-hover'>";
+          html += "<thead>";
+          html += "<tr class='bg-navy'>";
+          html += "<th width='50px'>No.</th>";
+          html += "<th width=320px>Nama Tamu</th>";
+          html += "<th class='text-center' width=320px>Nomor Kamar</th>";
+          html += "<th class='text-center' width=320px>Room Plan</th>";
+          html += "<th class='text-center' width=320px>Arrival Date</th>";
+          html += "<th class='text-center' width=320px>Depature Date</th>";
+          html += "<th class='text-center' width=320px>Market Segment</th>";
+          html += "</thead>";
+          html += "<tbody>";
+          $.each(val, function (i, row) {
+            html += "<tr id='data' kode='" + row.id + "'>";
+            html += "<td>" + (i + 1) + "</td>";
+            html += "<td>" + row.nama_check + "</td>";
+            html += "<td class='text-center'>" + row.nomor_kamar +"<br>" + `<p>Jml Kamar : ${row.jml_kmr}</p>`+"</td>";
+            html += "<td class='text-center'>" + row.nama_plan + "</td>";
+            html +=
+              "<td class='text-center'>" + 
+              new Date(row.arrival_date).toISOString().slice(0, 10) +
+              "</td>";
+            html +=
+              "<td class='text-center'>" +
+              new Date(row.departure_date).toISOString().slice(0, 10) +
+              "</td>";
+            html += "<td class='text-center'>" + row.id_ms + "</td>";
+            html += "</tr>";
+          });
+          html += "</tbody>";
+          html += "</table>";
+        } else {
+          html += "<div class='alert alert-warning'>Data tidak ditemukan</div>";
+        }
+        $(".list").html(html);
+        console.log(val);
+      },
+      error: function (data) {
+        console.log(data);
+      },
+    });
+  }
+</script>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">&nbsp;Room Setup</h3>
+        <div class="box-tools pull-right">
+          <button class="add no-border btn-success btn-sm">
+            <i class="fa fa-plus"></i>&nbsp;Add
+          </button>
+        </div>
+      </div>
+      <div class="box-body">
+        <div class="row">
+          <div class="clearfix">&nbsp;</div>
+          <div class="col-xs-12">
+            <div class="list table-responsive"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-simpan no-print" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-hidden="true"
+        >
+          ×
+        </button>
+        <h4 class="modal-title">
+          <i class="icon fa fa-warning"></i>&nbsp;&nbsp;Room Setup
+        </h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-horizontal">
+          <div class="form-group">
+            <div class="col-md-8">
+              <input type="hidden" name="id" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Number Room</label>
+            <div class="col-md-9">
+              <input type="text" class="form-control" name="room_number" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Floor</label>
+            <div class="col-md-9">
+              <select class="form-control" name="id_floor"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Room Type</label>
+            <div class="col-md-9">
+              <select class="form-control" name="id_type"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-3 control-label">Status</label>
+            <div class="col-md-9">
+              <select class="form-control" name="status">
+                <option value="1">AKTIF</option>
+                <option value="0">NON AKTIF</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="pull-right">
+          <button class="simpan btn bg-blue">
+            <i class="fa fa-save"></i>&nbsp;Save
+          </button>
+          <button class="hapus btn bg-red">
+            <i class="fa fa-minus"></i>&nbsp;Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

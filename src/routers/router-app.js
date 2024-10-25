@@ -106,6 +106,9 @@ router.get("/detailemployee_type", masterController.detailemployee_type);
 router.post("/editemployee_type", masterController.editemployee_type)
 router.post("/hapusemployee_type", masterController.hapusemployee_type)
 //checkin
-router.get("/checkin", checkinController.checkin)
+router.get("/checkin", checkinController.checkin);
+router.get("/data_checkin", checkinController.data_tamu);
+router.post("/simpan/checkin", checkinController.simpancheckin)
+router.post("/listcheckin", checkinController.listcheckin)
 
 module.exports = router;
