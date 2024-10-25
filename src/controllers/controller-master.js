@@ -100,6 +100,7 @@ module.exports = {
       var query  = `SELECT r.*,f.nama_floor as nama_floor,rt.nama_type as nama_type from room r `;
           query += `inner join room_type rt on (rt.id=r.id_type) `;
           query += `inner join floor f on (f.id=r.id_floor) `;
+          query += `ORDER BY f.nama_floor`
       pool.query(query,function (err, results) {
         if (err) {
             return res.status(500).json({ message: 'Ada kesalahan', error: err });

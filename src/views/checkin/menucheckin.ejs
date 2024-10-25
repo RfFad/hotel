@@ -7,6 +7,12 @@ $(document).ready(function(){
       $(".isibody").load(url);
       return false;
     })
+    $(".data_checkin").click(function(){
+      var url = '<%= url %>data_checkin';
+      $(".isibody").load(url);
+      return false;
+    })
+    
 })
 </script>
 <li class="header">MAIN NAVIGATION</li>
@@ -36,13 +42,10 @@ $(document).ready(function(){
 <li class="treeview">
   <a href="#">
     <i class="fa fa-user"></i>
-    <span>Employee</span>
+    <span>Tamu</span>
     <i class='fa fa-angle-left pull-right'></i>
   </a>
   <ul class="treeview-menu">
-    <li><a href="#" class="employee_status">Employee Status</a></li>
-    <li><a href="#" class="employee_type">Employee Type</a></li>
-    <li><a href="#" class="employee_shift">Employee Shift</a></li>
-    <li><a href="#">Employee List</a></li>
+    <li><a href="#" class="data_checkin">Data Checkin</a></li>
   </ul>
 </li>

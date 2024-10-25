@@ -135,6 +135,9 @@ router.post("/editkategori_event", masterController.editkategori_event)
 router.post("/hapuskategori_event", masterController.hapuskategori_event)
 
 //checkin
-router.get("/checkin", checkinController.checkin)
+router.get("/checkin", checkinController.checkin);
+router.get("/data_checkin", checkinController.data_tamu);
+router.post("/simpan/checkin", checkinController.simpancheckin)
+router.post("/listcheckin", checkinController.listcheckin)
 
 module.exports = router;

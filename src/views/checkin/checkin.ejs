@@ -1,171 +1,250 @@
 <script type="text/javascript">
-    $(document).ready(function(){
-        const today = new Date();
-    $('#arrivalDate').val(formatDate(today));
+  $(document).ready(function () {
+    $("#multiStepForm").on("submit", function (e) {
+    e.preventDefault(); // Cegah submit form default
+
+    // Tampilkan SweetAlert
+    Swal.fire({
+      title: 'Success!',
+      text: 'Berhasil Checkin',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    }).then(function () {
+      // Setelah menekan OK, kirim form dan reload halaman
+      e.target.submit(); // Kirim form manual
+      //location.reload(); // Reload halaman setelah submit
+    });
+  });
+    const today = new Date();
+    $("#arrivalDate").val(formatDate(today));
 
     // Set nilai untuk Departure Date ke satu hari setelah Arrival Date
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1); // Tambahkan 1 hari
-    $('#departureDate').val(formatDate(tomorrow));
+    $("#departureDate").val(formatDate(tomorrow));
 
     // Panggil calculateNights saat halaman dimuat untuk menampilkan jumlah malam awal
     calculateNights();
 
     // Event listener untuk menghitung ulang jumlah malam ketika Arrival Date atau Departure Date berubah
-    $('#arrivalDate, #departureDate').on('change', calculateNights);
-        function getQuery(param){
-            var urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
-        }
-
-        var currentStep = parseInt(getQuery('tahap') || 0);
-        showTahap(currentStep);
-
-        function showTahap(stepIndex){
-            var tahap = $(".tahap");
-            tahap.removeClass("active"); 
-            $(tahap[stepIndex]).addClass("active");
-
-            // Kondisi tombol 'Previous'
-            if(stepIndex === 0){
-                $("#prevBtn").hide();
-            } else {
-                $("#prevBtn").show();
-            }
-
-            // Kondisi tombol 'Next' dan 'Submit'
-            if(stepIndex === tahap.length - 1){
-                $("#nextBtn").hide();
-                $("#submitBtn").show();
-            } else {
-                $("#nextBtn").show();
-                $("#submitBtn").hide();
-            }
-
-            // Update query parameter URL
-            history.pushState(null, null, "?tahap=" + stepIndex);
-        }
-
-        // Event untuk tombol 'Next'
-        $("#nextBtn").click(function(){
-            var tahap = $(".tahap");
-            if(currentStep < tahap.length - 1){
-                currentStep++;
-                showTahap(currentStep);
-            }
-        });
-
-        // Event untuk tombol 'Previous'
-        $("#prevBtn").click(function(){
-            if(currentStep > 0){
-                currentStep--;
-                showTahap(currentStep);
-            }
-        });
-
-        // Inisiasi data roomplan
-        roomplan();
-        room();
-        // Fungsi AJAX untuk mengambil data roomplan
-        function room(id = ""){
-        var url = "<%= url %>listroom";
-        $.ajax({
-            url: url,
-            type: "POST",
-            success: function(row) {
-    var roomCheckboxes = "";
-    var displayedFloors = {}; // Objek untuk melacak lantai yang sudah ditampilkan
-
-    $.each(row.data, function(key, val) {
-        if (val.status !== 0) { // Status 0 berarti tidak tersedia
-            // Jika lantai belum pernah ditampilkan, tampilkan header lantai
-            if(val.nama_type === "STANDAR ROOM"){
-            if (!displayedFloors[val.nama_floor]) {
-                roomCheckboxes += `<h4>${val.nama_floor}</h4>`;
-                displayedFloors[val.nama_floor] = true; // Tandai lantai sebagai sudah ditampilkan
-            }
-            
-            // Tambahkan checkbox kamar
-            roomCheckboxes += `
-                <div class="room-box">
-                    <input type="checkbox" id="room_number" name="rooms[]" value="${val.room_number}">
-                    <label for="room${val.id}">${val.room_number}</label>
-                </div>
-            `;
-        }
-        }
-    });
-
-    $("#roomSelection").html(roomCheckboxes); // Tempatkan ke kontainer
-    if (id) {
-        $("[name='id_roomtype']").val(id).trigger("change");
+    $("#arrivalDate, #departureDate").on("change", calculateNights);
+    function getQuery(param) {
+      var urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
     }
 
+    var currentStep = parseInt(getQuery("tahap") || 0);
+    showTahap(currentStep);
+
+    function showTahap(stepIndex) {
+      var tahap = $(".tahap");
+      tahap.removeClass("active");
+      $(tahap[stepIndex]).addClass("active");
+
+      // Kondisi tombol 'Previous'
+      if (stepIndex === 0) {
+        $("#prevBtn").hide();
+      } else {
+        $("#prevBtn").show();
+      }
+
+      // Kondisi tombol 'Next' dan 'Submit'
+      if (stepIndex === tahap.length - 1) {
+        $("#nextBtn").hide();
+        $("#submitBtn").show();
+      } else {
+        $("#nextBtn").show();
+        $("#submitBtn").hide();
+      }
+
+      // Update query parameter URL
+      history.pushState(null, null, "?tahap=" + stepIndex);
+    }
+
+    // Event untuk tombol 'Next'
+    $("#nextBtn").click(function () {
+      var tahap = $(".tahap");
+      if (currentStep === 1) {
+        var selectedRooms = $("input[name = 'rooms[]']:checked").length;
+        if (selectedRooms === 0) {
+          Swal.fire({
+            icon: "warning",
+            title: "Pilih Kamar!",
+            text: "Silakan pilih setidaknya satu kamar sebelum melanjutkan.",
+            confirmButtonText: "OK",
+          });
+          return;
+        }
+      }
+      if (currentStep < tahap.length - 1) {
+        currentStep++;
+        showTahap(currentStep);
+      }
+    });
+
+    // Event untuk tombol 'Previous'
+    $("#prevBtn").click(function () {
+      if (currentStep > 0) {
+        currentStep--;
+        showTahap(currentStep);
+      }
+    });
+
+    // Inisiasi data roomplan
+    roomplan();
+    room();
+    // Fungsi AJAX untuk mengambil data roomplan
+    function room(id = "") {
+  var url = "<%= url %>listroom"; // Sesuaikan URL ini dengan URL endpoint backend Anda
+  $.ajax({
+    url: url,
+    type: "POST",
+    success: function (row) {
+      var roomCheckboxes = ""; // Variabel untuk menyimpan HTML yang akan dirender
+
+      // Objek untuk mengelompokkan kamar berdasarkan tipe room_type
+      var roomTypeGroups = {};
+
+      // Lakukan pengelompokan berdasarkan room_type
+      $.each(row.data, function (key, val) {
+        if (val.status !== 0) { // Status 0 berarti kamar tidak tersedia
+
+          // Jika belum ada array untuk room_type ini, buat array baru
+          if (!roomTypeGroups[val.nama_type]) {
+            roomTypeGroups[val.nama_type] = [];
+          }
+
+          // Tambahkan kamar ke array room_type yang sesuai
+          roomTypeGroups[val.nama_type].push(val);
+        }
+      });
+
+      // Loop untuk setiap group room_type
+      $.each(roomTypeGroups, function (roomType, rooms) {
+        roomCheckboxes += `<div class="roomType text-center"><h4 style="font-weight: bold;">${roomType}</h4></div><hr>`; // Tampilkan header untuk room_type
+
+        var displayedFloorsInRoomType = {}; // Melacak lantai yang sudah ditampilkan di setiap room_type
+
+        // Loop untuk setiap kamar dalam tipe tertentu
+        $.each(rooms, function (key, val) {
+          // Tampilkan lantai pada setiap room_type bahkan jika lantainya sama
+          if (!displayedFloorsInRoomType[val.nama_floor]) {
+            roomCheckboxes += `<div style="margin-bottom: 30px; margin-top: 30px;"><h4>${val.nama_floor}:</h4></div>`; // Tampilkan lantai
+            displayedFloorsInRoomType[val.nama_floor] = true; // Tandai lantai sebagai sudah ditampilkan
+          }
+          
+          // Tambahkan checkbox untuk setiap kamar, tambahkan nama_type sebagai data-attribute
+          roomCheckboxes += `
+            <div class="room-box">
+              <input type="checkbox" class="room-checkbox" id="room${val.id}" data-nama-type="${roomType}" name="rooms[]" value="${val.room_number}">
+              <label for="room${val.id}">${val.room_number}</label>
+            </div>
+          `;
+        });
+      });
+
+      // Render HTML yang sudah dibuat ke dalam div dengan id roomSelection
+      $("#roomSelection").html(roomCheckboxes);
+
+      // Jika ada ID yang diteruskan, trigger change untuk select option
+      if (id) {
+        $("[name='id_roomtype']").val(id).trigger("change");
+      }
+      RoomCount();
+      $(".room-checkbox").on("change", RoomCount);
+    },
+  });
 }
 
-        });
+// Tangkap event ketika checkbox berubah
+$(document).on('change', 'input[name="rooms[]"]', function() {
+  var selectedRooms = [];
+
+  // Loop untuk semua checkbox yang dipilih
+  $('input[name="rooms[]"]:checked').each(function() {
+    var roomNumber = $(this).val(); // Ambil nomor kamar
+    var namaType = $(this).data('nama-type'); // Ambil nama_type dari data-attribute
+
+    // Gabungkan nama_type dan room_number
+    var roomInfo = `${namaType}: ${roomNumber}`;
+
+    // Tambahkan ke array
+    selectedRooms.push(roomInfo);
+  });
+
+  // Masukkan nilai gabungan ke dalam elemen dengan name="id_fl"
+  $("input[name='nomor_kamar']").val(selectedRooms.join(', ')); // Gabungkan dengan koma jika lebih dari satu kamar
+});
+
+  // Gabungkan nilai dan masukkan ke input tersembunyi
+  $('#selectedRooms').val(selectedRooms.join(','));
+  $('#selectedFloors').val(selectedRooms.join(','));
+});
+
+    function roomplan(id = "") {
+      var url = "<%= url %>listroomplan";
+      $.ajax({
+        url: url,
+        type: "POST",
+        success: function (row) {
+          $.each(row.data, function (key, val) {
+            if (val.status !== 0) {
+              var o = $("<option/>", { value: val.id, text: val.nama_plan });
+              $("[name='id_rp']").append(o);
+            }
+          });
+          if (id) {
+            $("[name='id_roomtype']").val(id).trigger("change");
+          }
+        },
+      });
     }
-    function roomplan(id = ""){
-            var url = "<%= url %>listroomplan";
-            $.ajax({
-                url: url,
-                type: "POST",
-                success: function(row){
-                    $.each(row.data, function(key, val){
-                        if(val.status !== 0){
-                            var o = $("<option/>", { value: val.id, text: val.nama_plan });
-                            $("[name='id_roomplan']").append(o);
-                        }
-                    });
-                    if (id) {
-                        $("[name='id_roomtype']").val(id).trigger("change");
-                    }
-                }
-            });
-        }
-    });
-    function formatDate(date) {
+  
+  function formatDate(date) {
     const d = new Date(date);
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
+    let month = "" + (d.getMonth() + 1);
+    let day = "" + d.getDate();
     const year = d.getFullYear();
 
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
 
-    return [year, month, day].join('-');
+    return [year, month, day].join("-");
   }
 
   // Fungsi untuk menghitung selisih hari antara dua tanggal
   function calculateNights() {
-    const arrivalDate = new Date($('#arrivalDate').val());
-    const departureDate = new Date($('#departureDate').val());
+    const arrivalDate = new Date($("#arrivalDate").val());
+    const departureDate = new Date($("#departureDate").val());
 
     // Hitung selisih hari
     const timeDifference = departureDate - arrivalDate;
     const nightCount = timeDifference / (1000 * 3600 * 24); // Konversi dari milidetik ke hari
 
     // Tampilkan jumlah malam
-    $('#nightCountText').text(nightCount + " Malam");
+    $("#nightCountText").text(nightCount + " Malam");
   }
+  function RoomCount(){
+    var RoomSelect = $(".room-checkbox:checked").length;
+    $("#count").text(RoomSelect);
+    $("#selectedRoomCount").val(RoomSelect)
 
+  }
 </script>
 
-  
 <style>
-   
-.tahap-2 {
+  .tahap-2 {
     display: none;
   }
-.tahap-3{
+  .tahap-3 {
     display: none;
-}
-.tahap {
-        display: none;
-    }
-    .tahap.active {
-        display: block;
-    }
+  }
+  .tahap {
+    display: none;
+  }
+  .tahap.active {
+    display: block;
+  }
 
   .room-box {
     display: inline-block;
@@ -208,318 +287,415 @@
         <div class="row">
           <div class="clearfix">
             <div class="col-xs-12">
-                <div class="card">
-                    <form id="multiStepForm">
+              <div class="card">
+                <form id="multiStepForm" action="/simpan/checkin" method="POST">
                   <!-- tahap 1 -->
-                   <div class="tahap active">
-                <table class="table table-bordered" style="display: block">
-                  <tbody>
-                    <tr>
-                      <td><label for="ratePlan">Rate Plan</label></td>
-                      <td>
-                        <select name="id_roomplan" class="form-control" id=""></select>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><label for="marketSegment">Market Segment</label></td>
-                      <td>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="marketSegment"
-                          value="WALK-IN"
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><label for="arrivalDate">Arrival Date</label></td>
-                      <td>
-                        <input
-                          type="date"
-                          class="form-control"
-                          id="arrivalDate"
-                    
-                        />
-                        <small>Klik ikon gambar, format: yyyy-mm-dd</small>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><label for="departureDate">Departure Date</label></td>
-                      <td>
-                        <input
-                          type="date"
-                          class="form-control"
-                          id="departureDate"
-                          
-                        />
-                        <small id="nightCountText">1 Malam</small>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><label for="totalAdult">Total Adult</label></td>
-                      <td>
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="totalAdult"
-                          value="1"
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><label for="totalChild">Total Child</label></td>
-                      <td>
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="totalChild"
-                          value="0"
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><label for="banquet">Banquet</label></td>
-                      <td>
-                        <div class="form-check form-check-inline">
-                          <input
-                            class="form-check-input"
-                            type="radio"
-                            name="banquet"
-                            id="banquetNo"
-                            value="Tidak"
-                            checked
-                          />
-                          <label class="form-check-label" for="banquetNo"
-                            >Tidak</label
-                          >
-                        </div>
-                        <div class="form-check form-check-inline">
-                          <input
-                            class="form-check-input"
-                            type="radio"
-                            name="banquet"
-                            id="banquetYes"
-                            value="Ya"
-                          />
-                          <label class="form-check-label" for="banquetYes"
-                            >Ya</label
-                          >
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-            </div>
-                <!-- /tahap 1 -->
-                 <!-- tahap 2 -->
-                  <div class="tahap">
-                <div class="room">
-                  <table class="table table-bordered">
-                    <tr>
-                      <td class="text-center" colspan="2">
-                        <h5>STANDAR ROOM</h5>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><h5>jumlah kamar (STANDAR)</h5></td>
-                      <td><input type="text" class="form-control" id="room-standar" /></td>
-                    </tr>
-                    <tr>
-                      <td class="no-border">
-                        <div id="roomSelection"></div>
-                    <!--    <div class="d-flex align-items-center">
-                          <h4 class="mb-0">1st Floor:</h4>
-                          <div class="room-box ml-3">
-                            <input type="checkbox" id="room-floor" />
-                            <label for="room101" class="vacant">101</label>
-                          </div>
-                          
-                        </div>
-                    -->
-                      </td>
-                    </tr>
-                    <td class="text-center" colspan="2">
-                        <h5>DELUXE ROOM</h5>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><h5>jumlah kamar (DELUXE)</h5></td>
-                      <td><input type="text" class="form-control" /></td>
-                    </tr>
-                    <tr>
-                      <td class="no-border">
-                        <div class="d-flex align-items-center">
-                          <h4 class="mb-0">1st Floor:</h4>
-                          <div class="room-box ml-3">
-                            <input type="checkbox" id="room-floor" />
-                            <label for="room101" class="">101</label>
-                          </div>
-                         
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-            </div>
-                <!-- /tahap 2 -->
-                 <div class="tahap">
-                    <table class="table table-bordered">
-                        <tbody>
-                          <tr>
-                            <td><label for="ratePlan">Nama</label></td>
-                            <td>
-                              <input
-                                type="text"
-                                class="form-control"
-                                id="ratePlan"
-                                value=""
-                                placeholder="INPUT NAME"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><label for="ratePlan">ID Number</label></td>
-                            <td>
-                              <input
-                                type="text"
-                                class="form-control"
-                                id="ratePlan"
-                                value=""
-                                placeholder="INPUT ID"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><label for="ratePlan">Guest Type</label></td>
-                            <td>
-                                <div class="form-group">
-                                    <div class="form-check form-check-inline">
-                                      <input class="form-check-input" type="radio" name="guest_type" id="regular" value="regular" required>
-                                      <label class="form-check-label" for="regular">Regular</label>
-                                      <input class="form-check-input" type="radio" name="guest_type" id="vip" value="vip" required>
-                                      <label class="form-check-label" for="vip">Vip</label>
-                                    </div>
-                                  </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><label for="marketSegment">Tgl Lahir</label></td>
-                            <td>
-                                <div class="form-group row">
-                                  <div class="col-md-6">
-                                    <input
-                                      type="text"
-                                      class="form-control"
-                                      id="marketSegment"
-                                      placeholder="Market Segment"
-                                    />
-                                  </div>
-                                  <div class="col-md-6">
-                                    <input
-                                      type="date"
-                                      class="form-control"
-                                      id="marketSegmentDate"
-                                    />
-                                  </div>
-                                </div>
-                                <small>Klik ikon gambar, format: yyyy-mm-dd</small>
-                              </td>
-                              
-                              
-                          </tr>
-                          <tr>
-                            <tr>
-                                <td>
-                                <label for="jk">Jenis Kelamin</label>
-                            </td>
-                                <td>
-                                    <div class="form-group">
-                                        <div class="form-check form-check-inline">
-                                          <input class="form-check-input" type="radio" name="jk" id="jkLaki" value="laki-laki" required>
-                                          <label class="form-check-label" for="jkLaki">Laki-Laki</label>
-                                          <input class="form-check-input" type="radio" name="jk" id="jkPerempuan" value="perempuan" required>
-                                          <label class="form-check-label" for="jkPerempuan">Perempuan</label>
-                                        </div>
-                                      </div>
-                                </td>
-                            </tr>
-                            <tr>
-                            <td><label for="arrivalDate">Agama</label></td>
-                            <td>
-                             <select name="" id="" class="form-control" style="width: 50%;">
-                                <option value="islam">Islam</option>
-                                <option value="hindu">Hindu</option>
-                                <option value="kristen">Kristen</option>
-                             </select>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                            <label for="judul">judul</label>
-                        </td>
-                            <td>
-                                <div class="form-group">
-                                    <div class="form-check form-check-inline">
-                                      <input class="form-check-input" type="radio" name="judul" id="judulMr" value="Mr" required>
-                                      <label class="form-check-label" for="judulMr">Mr</label>
-                                      <input class="form-check-input" type="radio" name="judul" id="judulMrs" value="Mrs" required>
-                                      <label class="form-check-label" for="judulMrs">Mrs</label>
-                                      <input class="form-check-input" type="radio" name="judul" id="judulMiss" value="Miss" required>
-                                      <label class="form-check-label" for="judulMiss">Miss</label>
-                                    </div>
-                                  </div>
-                            </td>
+                  <div class="tahap active">
+                    <table class="table table-bordered" style="display: block">
+                      <tbody>
+                        <tr>
+                          <td><label for="ratePlan">Rate Plan</label></td>
+                          <td>
+                            <select
+                              name="id_rp"
+                              class="form-control"
+                              id=""
+                            ></select>
+                          </td>
                         </tr>
                         <tr>
-                            <td><label for="arrivalDate">Pekerjaan</label></td>
-                            <td>
-                             <select name="" id="" class="form-control" style="width: 50%;">
-                                <option value="karyawan swasta">Karyawan Swasta</option>
-                                <option value="petani">Petani</option>
-                                <option value="pns">Pns</option>
-                                <option value="dokter">Dokter</option>
-                             </select>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><label for="arrivalDate">Alamat</label></td>
-                            <td>
-                                <textarea name="" id="" class="form-control" style="width: 50%; height: 130px;"></textarea>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><label for="ratePlan">Email</label></td>
-                            <td>
+                          <td>
+                            <label for="marketSegment">Market Segment</label>
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="marketSegment"
+                              name="id_ms"
+                              value="WALK-IN"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="arrivalDate">Arrival Date</label></td>
+                          <td>
+                            <input
+                              type="date"
+                              class="form-control"
+                              name="arrival_date"
+                              id="arrivalDate"
+                            />
+                            <small>Klik ikon gambar, format: yyyy-mm-dd</small>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <label for="departureDate">Departure Date</label>
+                          </td>
+                          <td>
+                            <input
+                              type="date"
+                              class="form-control"
+                              name="departure_date"
+                              id="departureDate"
+                            />
+                            <small id="nightCountText">1 Malam</small>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="totalAdult">Total Adult</label></td>
+                          <td>
+                            <input
+                              type="number"
+                              class="form-control"
+                              id="totalAdult"
+                              name="total_adult"
+                              value="1"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="totalChild">Total Child</label></td>
+                          <td>
+                            <input
+                              type="number"
+                              class="form-control"
+                              id="totalChild"
+                              value="0"
+                              name="total_child"
+                              
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="banquet">Banquet</label></td>
+                          <td>
+                            <div class="form-check form-check-inline">
                               <input
-                                type="email"
-                                class="form-control"
-                                id="ratePlan"
-                                value=""
-                                placeholder="INPUT EMAIL"
+                                class="form-check-input"
+                                type="radio"
+                                name="banquet"
+                                id="banquetNo"
+                                value="Tidak"
+                                name = "banquet"
+                                checked
                               />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td><label for="ratePlan">Nomer Tlp</label></td>
-                            <td>
+                              <label class="form-check-label" for="banquetNo"
+                                >Tidak</label
+                              >
+                            </div>
+                            <div class="form-check form-check-inline">
                               <input
-                                type="text"
-                                class="form-control"
-                                id="ratePlan"
-                                value=""
-                                placeholder="INPUT TLP"
+                                class="form-check-input"
+                                type="radio"
+                                name="banquet"
+                                id="banquetYes"
+                                value="Ya"
                               />
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                 </div>
-                <div class="d-flex justify-content-between">
-                    <button type="button" id="prevBtn" class="btn btn-secondary">Previous</button>
-                                    <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
-                                    <button type="submit" id="submitBtn" class="btn btn-success" style="display:none;">Submit</button>
-                </div>
-            </form>
+                              <label class="form-check-label" for="banquetYes"
+                                >Ya</label
+                              >
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <!-- /tahap 1 -->
+                  <!-- tahap 2 -->
+                  <div class="tahap">
+                    <div class="room">
+                      <!-- Input tersembunyi untuk menampung nilai yang dipilih -->
+                      <div><h4>Jumlah yang dipilih <span id="count"></span></h4></div>
+                      <input type="hidden" id="selectedRoomCount" name="jml_kmr" value="0">
+                      <input
+                        type="hidden"
+                        id="selectedRooms"
+                        name=""
+                      />
+                      <input type="hidden" id="selectedFloors" name="nomor_kamar" />
+
+                      <div id="roomSelection"></div>
+                      <!-- Tempat rendering kamar -->
+
+                      
+                    </div>
+                  </div>
+                  <!-- /tahap 2 -->
+                  <div class="tahap">
+                    <table class="table table-bordered">
+                      <tbody>
+                        <tr>
+                          <td><label for="ratePlan">Nama</label></td>
+                          <td>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="ratePlan"
+                              value=""
+                              placeholder="INPUT NAME"
+                              name="nama_check"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="ratePlan">ID Number</label></td>
+                          <td>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="ratePlan"
+                              name="id_number"
+                              value=""
+                              placeholder="INPUT ID"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="ratePlan">Guest Type</label></td>
+                          <td>
+                            <div class="form-group">
+                              <div class="form-check form-check-inline">
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="guest_type"
+                                  id="regular"
+                                  value="regular"
+                                  required
+                                />
+                                <label class="form-check-label" for="regular"
+                                  >Regular</label
+                                >
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="guest_type"
+                                  id="vip"
+                                  value="vip"
+                                  required
+                                />
+                                <label class="form-check-label" for="vip"
+                                  >Vip</label
+                                >
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="marketSegment">Tgl Lahir</label></td>
+                          <td>
+                            <div class="form-group row">
+                              <div class="col-md-6">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  id="marketSegment"
+                                  placeholder="Market Segment"
+                                />
+                              </div>
+                              <div class="col-md-6">
+                                <input
+                                  type="date"
+                                  name="tgl_lahir"
+                                  class="form-control"
+                                  id="marketSegmentDate"
+                                />
+                              </div>
+                            </div>
+                            <small>Klik ikon gambar, format: yyyy-mm-dd</small>
+                          </td>
+                        </tr>
+                        <tr></tr>
+                        <tr>
+                          <td>
+                            <label for="jk">Jenis Kelamin</label>
+                          </td>
+                          <td>
+                            <div class="form-group">
+                              <div class="form-check form-check-inline">
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="jk"
+                                  id="jkLaki"
+                                  value="laki-laki"
+                                  required
+                                />
+                                <label class="form-check-label" for="jkLaki"
+                                  >Laki-Laki</label
+                                >
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="jk"
+                                  id="jkPerempuan"
+                                  value="perempuan"
+                                  required
+                                />
+                                <label
+                                  class="form-check-label"
+                                  for="jkPerempuan"
+                                  >Perempuan</label
+                                >
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="arrivalDate">Agama</label></td>
+                          <td>
+                            <select
+                              name="agama"
+                              id=""
+                              class="form-control"
+                              style="width: 50%"
+                            >
+                              <option value="islam">Islam</option>
+                              <option value="hindu">Hindu</option>
+                              <option value="kristen">Kristen</option>
+                            </select>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <label for="judul">judul</label>
+                          </td>
+                          <td>
+                            <div class="form-group">
+                              <div class="form-check form-check-inline">
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="judul"
+                                  id="judulMr"
+                                  value="Mr"
+                                  required
+                                />
+                                <label class="form-check-label" for="judulMr"
+                                  >Mr</label
+                                >
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="judul"
+                                  id="judulMrs"
+                                  value="Mrs"
+                                  required
+                                />
+                                <label class="form-check-label" for="judulMrs"
+                                  >Mrs</label
+                                >
+                                <input
+                                  class="form-check-input"
+                                  type="radio"
+                                  name="judul"
+                                  id="judulMiss"
+                                  value="Miss"
+                                  required
+                                />
+                                <label class="form-check-label" for="judulMiss"
+                                  >Miss</label
+                                >
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="arrivalDate">Pekerjaan</label></td>
+                          <td>
+                            <select
+                              name="pekerjaan"
+                              id=""
+                              class="form-control"
+                              style="width: 50%"
+                            >
+                              <option value="karyawan swasta">
+                                Karyawan Swasta
+                              </option>
+                              <option value="petani">Petani</option>
+                              <option value="pns">Pns</option>
+                              <option value="dokter">Dokter</option>
+                            </select>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="arrivalDate">Alamat</label></td>
+                          <td>
+                            <textarea
+                              name="alamat"
+                              id=""
+                              class="form-control"
+                              style="width: 50%; height: 130px"
+                            ></textarea>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="ratePlan">Email</label></td>
+                          <td>
+                            <input
+                              type="email"
+                              class="form-control"
+                              id="ratePlan"
+                              name="email"
+                              value=""
+                              placeholder="INPUT EMAIL"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="ratePlan">Nomer Tlp</label></td>
+                          <td>
+                            <input
+                              type="text"
+                              name="no_telp"
+                              class="form-control"
+                              id="ratePlan"
+                              value=""
+                              placeholder="INPUT TLP"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><label for="ratePlan">Foto Tamu</label></td>
+                          <td>
+                            <input
+                              type="file"
+                              class="form-control"
+                              id="ratePlan"
+                              value=""
+                              placeholder="INPUT TLP"
+                            />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div
+                    class="d-flex justify-content-between"
+                    style="margin-top: 30px"
+                  >
+                    <button
+                      type="button"
+                      id="prevBtn"
+                      class="btn btn-secondary"
+                    >
+                      Previous
+                    </button>
+                    <button type="button" id="nextBtn" class="btn btn-primary">
+                      Next
+                    </button>
+                    <button
+                      type="submit"
+                      id="submitBtn"
+                      class="btn btn-success"
+                      style="display: none"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
