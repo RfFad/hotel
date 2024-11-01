@@ -1,18 +1,17 @@
 <script type="text/javascript">
   $(document).ready(function () {
     $("#multiStepForm").on("submit", function (e) {
-    e.preventDefault(); // Cegah submit form default
+    e.preventDefault(); 
 
-    // Tampilkan SweetAlert
+   
     Swal.fire({
       title: 'Success!',
       text: 'Berhasil Checkin',
       icon: 'success',
       confirmButtonText: 'OK'
     }).then(function () {
-      // Setelah menekan OK, kirim form dan reload halaman
-      e.target.submit(); // Kirim form manual
-      //location.reload(); // Reload halaman setelah submit
+      
+      e.target.submit(); 
     });
   });
     const today = new Date();
@@ -61,7 +60,7 @@
       history.pushState(null, null, "?tahap=" + stepIndex);
     }
 
-    // Event untuk tombol 'Next'
+    
     $("#nextBtn").click(function () {
       var tahap = $(".tahap");
       if (currentStep === 1) {
@@ -93,69 +92,9 @@
     // Inisiasi data roomplan
     roomplan();
     room();
+   
     // Fungsi AJAX untuk mengambil data roomplan
-    function room(id = "") {
-  var url = "<%= url %>listroom"; // Sesuaikan URL ini dengan URL endpoint backend Anda
-  $.ajax({
-    url: url,
-    type: "POST",
-    success: function (row) {
-      var roomCheckboxes = ""; // Variabel untuk menyimpan HTML yang akan dirender
-
-      // Objek untuk mengelompokkan kamar berdasarkan tipe room_type
-      var roomTypeGroups = {};
-
-      // Lakukan pengelompokan berdasarkan room_type
-      $.each(row.data, function (key, val) {
-        if (val.status !== 0) { // Status 0 berarti kamar tidak tersedia
-
-          // Jika belum ada array untuk room_type ini, buat array baru
-          if (!roomTypeGroups[val.nama_type]) {
-            roomTypeGroups[val.nama_type] = [];
-          }
-
-          // Tambahkan kamar ke array room_type yang sesuai
-          roomTypeGroups[val.nama_type].push(val);
-        }
-      });
-
-      // Loop untuk setiap group room_type
-      $.each(roomTypeGroups, function (roomType, rooms) {
-        roomCheckboxes += `<div class="roomType text-center"><h4 style="font-weight: bold;">${roomType}</h4></div><hr>`; // Tampilkan header untuk room_type
-
-        var displayedFloorsInRoomType = {}; // Melacak lantai yang sudah ditampilkan di setiap room_type
-
-        // Loop untuk setiap kamar dalam tipe tertentu
-        $.each(rooms, function (key, val) {
-          // Tampilkan lantai pada setiap room_type bahkan jika lantainya sama
-          if (!displayedFloorsInRoomType[val.nama_floor]) {
-            roomCheckboxes += `<div style="margin-bottom: 30px; margin-top: 30px;"><h4>${val.nama_floor}:</h4></div>`; // Tampilkan lantai
-            displayedFloorsInRoomType[val.nama_floor] = true; // Tandai lantai sebagai sudah ditampilkan
-          }
-          
-          // Tambahkan checkbox untuk setiap kamar, tambahkan nama_type sebagai data-attribute
-          roomCheckboxes += `
-            <div class="room-box">
-              <input type="checkbox" class="room-checkbox" id="room${val.id}" data-nama-type="${roomType}" name="rooms[]" value="${val.room_number}">
-              <label for="room${val.id}">${val.room_number}</label>
-            </div>
-          `;
-        });
-      });
-
-      // Render HTML yang sudah dibuat ke dalam div dengan id roomSelection
-      $("#roomSelection").html(roomCheckboxes);
-
-      // Jika ada ID yang diteruskan, trigger change untuk select option
-      if (id) {
-        $("[name='id_roomtype']").val(id).trigger("change");
-      }
-      RoomCount();
-      $(".room-checkbox").on("change", RoomCount);
-    },
-  });
-}
-
+    
 // Tangkap event ketika checkbox berubah
 $(document).on('change', 'input[name="rooms[]"]', function() {
   var selectedRooms = [];
@@ -163,10 +102,11 @@ $(document).on('change', 'input[name="rooms[]"]', function() {
   // Loop untuk semua checkbox yang dipilih
   $('input[name="rooms[]"]:checked').each(function() {
     var roomNumber = $(this).val(); // Ambil nomor kamar
-    var namaType = $(this).data('nama-type'); // Ambil nama_type dari data-attribute
+    //var namaType = $(this).data('nama-type'); // Ambil nama_type dari data-attribute
 
-    // Gabungkan nama_type dan room_number
-    var roomInfo = `${namaType}: ${roomNumber}`;
+    
+    //var roomInfo = `${namaType}: ${roomNumber}`;
+    var roomInfo = `${roomNumber}`;
 
     // Tambahkan ke array
     selectedRooms.push(roomInfo);
@@ -181,25 +121,96 @@ $(document).on('change', 'input[name="rooms[]"]', function() {
   $('#selectedFloors').val(selectedRooms.join(','));
 });
 
-    function roomplan(id = "") {
-      var url = "<%= url %>listroomplan";
-      $.ajax({
-        url: url,
-        type: "POST",
-        success: function (row) {
-          $.each(row.data, function (key, val) {
-            if (val.status !== 0) {
-              var o = $("<option/>", { value: val.id, text: val.nama_plan });
-              $("[name='id_rp']").append(o);
-            }
-          });
-          if (id) {
-            $("[name='id_roomtype']").val(id).trigger("change");
+function room(id_plan) {
+  var url = "<%= url %>detail_room";
+  var formData = {
+    id_plan: id_plan  
+  };
+
+  $.ajax({
+    url: url,
+    type: "GET",
+    data: formData,
+    cache: false,
+    success: function (row) {
+      var roomCheckboxes = "";
+
+      
+      var roomTypeGroups = {};
+
+     
+      $.each(row.data, function (key, val) {
+        if (val.status !== 0) { // Status 0 berarti kamar tidak tersedia
+          if (!roomTypeGroups[val.nama_type]) {
+            roomTypeGroups[val.nama_type] = [];
           }
-        },
+          roomTypeGroups[val.nama_type].push(val);
+        }
       });
-    }
-  
+
+      // Loop untuk setiap group room_type
+      $.each(roomTypeGroups, function (roomType, rooms) {
+        roomCheckboxes += `<div class="roomType text-center"><h4 style="font-weight: bold;">${roomType}</h4></div><hr>`;
+
+        var displayedFloorsInRoomType = {};
+
+        $.each(rooms, function (key, val) {
+          if (!displayedFloorsInRoomType[val.nama_floor]) {
+            roomCheckboxes += `<div style="margin-bottom: 30px; margin-top: 30px;"><h4>${val.nama_floor}:</h4></div>`;
+            displayedFloorsInRoomType[val.nama_floor] = true;
+          }
+
+          roomCheckboxes += `
+            <div class="room-box">
+              <input type="checkbox" class="room-checkbox" id="room${val.id}" data-nama-type="${roomType}" name="rooms[]" value="${val.id_room}">
+              <label for="room${val.id}">${val.room_number}</label>
+            </div>
+          `;
+        });
+      });
+
+      
+      $("#roomSelection").html(roomCheckboxes);
+
+      RoomCount();
+      $(".room-checkbox").on("change", RoomCount);
+    },
+  });
+}
+$("[name='id_rp']").on("change", function() {
+  var selectedIdPlan = $(this).val();
+  $("#roomSelection").empty(); // Kosongkan sebelum memuat data baru
+  room(selectedIdPlan);
+});
+
+function roomplan(id = "") {
+  var url = "<%= url %>listroomplan";
+  $.ajax({
+    url: url,
+    type: "POST",
+    success: function (row) {
+      
+      $("[name='id_rp']").empty();
+      
+      
+      $.each(row.data, function (key, val) {
+        if (val.status !== 0) {
+          var o = $("<option/>", { value: val.id, text: val.nama_plan });
+          $("[name='id_rp']").append(o);
+        }
+      });
+
+      
+      if (id) {
+        $("[name='id_rp']").val(id).trigger("change");
+      } else {
+        // Panggil room dengan nilai pertama jika tidak ada id yang diberikan
+        var firstIdPlan = $("[name='id_rp']").val();
+        room(firstIdPlan);
+      }
+    },
+  });
+}
   function formatDate(date) {
     const d = new Date(date);
     let month = "" + (d.getMonth() + 1);
@@ -230,6 +241,9 @@ $(document).on('change', 'input[name="rooms[]"]', function() {
     $("#selectedRoomCount").val(RoomSelect)
 
   }
+  $(document).on("change", "#id_rp", function(){
+    room(this.value)
+  })
 </script>
 
 <style>
@@ -299,7 +313,7 @@ $(document).on('change', 'input[name="rooms[]"]', function() {
                             <select
                               name="id_rp"
                               class="form-control"
-                              id=""
+                              id="id_rp" 
                             ></select>
                           </td>
                         </tr>

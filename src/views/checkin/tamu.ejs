@@ -1,9 +1,37 @@
+
 <script type="text/javascript">
   $(document).ready(function () {
+    
+  //for content modal
+  function hitungDiskon(){
+    let harga = parseFloat($("#price").val())  ;
+    let diskon = parseFloat($("#diskon").val()) || 0 ;
+
+    let totalhitung = harga - (harga*(diskon/100));
+    $("#total").text(totalhitung.toFixed(2))
+  }
+  $("#price, #diskon").on("keyup input", hitungDiskon);
+  $(".identitas").show();
+  $(".room_rate").hide();
+
+  $("#identitas").on('click', function(){
+    $(".identitas").show();
+    $(".room_rate").hide();
+  })
+  $("#room_rate").on('click', function(){
+    $(".identitas").hide();
+    $(".room_rate").show();
+  })
+ 
     list();
-    $(".list").on("click","tr#data",function(){
-        var id = $(this).attr("kode")
-        $(".modal-simpan").modal("show")
+    $(".list").on("click", "tr#data", function (e) {
+      e.preventDefault();
+      var id = $(this).attr("kode");
+      detail(id);
+      $(".modal-simpan").modal("show");
+    });
+    $(".simpan_identitas").click(function(){
+      edit_identitas();
     })
   });
   function list() {
@@ -14,8 +42,9 @@
       type: "post",
       success: function (result) {
         var val = result.data;
+      
         if (result.jml > 0) {
-          html += "<table class='table table-hover'>";
+          html += "<table class='table table-hover text-dark' >";
           html += "<thead>";
           html += "<tr class='bg-navy'>";
           html += "<th width='50px'>No.</th>";
@@ -31,10 +60,15 @@
             html += "<tr id='data' kode='" + row.id + "'>";
             html += "<td>" + (i + 1) + "</td>";
             html += "<td>" + row.nama_check + "</td>";
-            html += "<td class='text-center'>" + row.nomor_kamar +"<br>" + `<p>Jml Kamar : ${row.jml_kmr}</p>`+"</td>";
+            html +=
+              "<td class='text-center'>" +
+              `${row.nama_type} : ${row.room_number}`  +
+              "<br>" +
+              `<p>Jml Kamar : ${row.jml_kmr}</p>` +
+              "</td>";
             html += "<td class='text-center'>" + row.nama_plan + "</td>";
             html +=
-              "<td class='text-center'>" + 
+              "<td class='text-center'>" +
               new Date(row.arrival_date).toISOString().slice(0, 10) +
               "</td>";
             html +=
@@ -57,7 +91,329 @@
       },
     });
   }
+  function detailPrice(){
+    var url = "<%= url %>data_rate";
+    $.ajax({
+      url : url,
+      type : "post",
+      success : function(result){
+        var val = result.data;
+        $("[name = 'price']").val(val.nama_type)
+      }
+    })
+  }
+  function tes(){
+    check = detail(id)
+    console.log("data checkin" + check)
+  }
+  function detail(id) {
+    var url = "<%= url %>detail_tamu";
+    var formData = {
+      id: id,
+    };
+    $.ajax({
+      url: url,
+      type: "get",
+      data: formData,
+      success: function (row) {
+        var val = row.data[0];
+        //var room = val.nomor_kamar;
+       // var number_room = room.match(/\d+/g).join(", ");
+        $("[name='id']").val(val.id);
+        $(".nama_check").val(val.nama_check);
+        $("#judul").text(val.judul);
+        $("[name = 'judul'] option[value = '"+ val.judul +"']").prop('selected', true);
+        $("[name = 'nama_check']").val(val.nama_check);
+        $("[name='id_number']").val(val.id_number);
+        $("[name='email']").val(val.email);
+        $("[name='no_telp']").val(val.no_telp);
+        $("[name='jk']").val(val.jk);
+        $("[name='alamat']").val(val.alamat);
+        $("[name='price']").val(number_format(val.price, 0, ",", "."));
+        $("[name='agama']").val(val.agama);
+        $("[name='total_adult']").val(val.total_adult);
+        $("[name='total_child']").val(val.total_child);
+        $(".arrival_date").text(new Date(val.arrival_date).toISOString().slice(0, 10))
+        $(".departure_date").text(new Date(val.departure_date).toISOString().slice(0, 10))
+        $(".nama_plan").text(val.nama_plan)
+        $("#number_room").text(val.room_number)
+        $("[name='arrival_date']").val(
+          new Date(val.arrival_date).toISOString().slice(0, 10)
+        );
+        $("[name='departure_date']").val(
+          new Date(val.departure_date).toISOString().slice(0, 10)
+        );
+       $("[name='room_number']").val(val.room_number);
+        $("[name='pekerjaan']").val(val.pekerjaan);
+        $("[name='tgl_lahir']").val(
+          new Date(val.tgl_lahir).toISOString().slice(0, 10)
+        );
+        // $("[name='id_floor'] option[value='" + val.id_floor + "']").prop('selected',true);
+        // $("[name='id_type'] option[value='" + val.id_type + "']").prop('selected',true);
+        $(".modal-simpan").modal("show");
+        console.log(val);
+      },
+      error: function (data) {
+        console.log(data);
+      },
+    });
+  }
+  function edit_identitas(){
+    var nama_check = $("[name = 'nama_check']").val();
+    var judul = $("[name = 'judul']").val();
+    var tgl_lahir = $("[name = 'tgl_lahir']").val();
+    var agama = $("[name = 'agama']").val();
+    var alamat =$("[name = 'alamat']").val();
+    var email = $("[name = 'email']").val();
+    var id = $("[name='id']").val();
+    var id_number = $("[name = 'id_number']").val();
+    var jk = $("[name = 'jk']").val();
+    var pekerjaan = $("[name = 'pekerjaan']").val();
+    var no_telp = $("[name = 'no_telp']").val();
+    
+    var url = "<%= url %>edit_identitas";
+    var formData = {
+      id: id,
+      nama_check : nama_check,
+      judul : judul,
+      tgl_lahir : tgl_lahir,
+      agama : agama, 
+      alamat : alamat,
+      email : email,
+      id_number : id_number,
+      jk : jk,
+      pekerjaan : pekerjaan,
+      no_telp : no_telp
+    };
+    $.ajax({
+      url : url,
+      type : "POST",
+      data : formData,
+      success : function(data){
+        Swal.fire({
+            title: "Success",
+            text: "Data Identitas Berhasil diupdate ",
+            icon: "success",
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+          $(".modal-simpan").modal("show");
+      },
+      error: function (data) {
+          console.log(data);
+        },
+    })
+  }
 </script>
+<style>
+  body {
+    font-family: "Poppins", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.8;
+    font-weight: normal;
+    background: #fff;
+    color: #080808;
+  }
+  a {
+    transition: 0.3s all ease;
+    color: #2f89fc;
+  }
+  a:hover,
+  a:focus {
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: none;
+  }
+  button {
+    transition: 0.3s all ease;
+  }
+  button:hover,
+  button:focus {
+    text-decoration: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+ 
+  .ftco-section {
+    padding: 7em 0;
+  }
+  .ftco-no-pt {
+    padding-top: 0;
+  }
+  .ftco-no-pb {
+    padding-bottom: 0;
+  }
+  .heading-section {
+    font-size: 28px;
+    color: #000;
+  }
+  .heading-section small {
+    font-size: 18px;
+  }
+  .img {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+  .wrapper {
+    width: 100%;
+  }
+  #sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    background: #3a3939;
+    color: #fff;
+    transition: all 0.3s;
+    position: relative;
+  }
+  #sidebar .h6 {
+    color: #fff;
+  
+  }
+  #sidebar.active {
+    margin-left: -250px;
+  }
+  #sidebar.active .custom-menu {
+    margin-right: -50px;
+  }
+  #sidebar h1 {
+    margin-bottom: 20px;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  #sidebar h1 .logo {
+    color: #fff;
+    display: block;
+    padding: 10px 30px;
+    background: #132135;
+  }
+  #sidebar ul.components {
+    padding: 0;
+  }
+  #sidebar ul li {
+    font-size: 13px;
+  }
+  #sidebar ul li > ul {
+    margin-left: 10px;
+  }
+  #sidebar ul li > ul li {
+    font-size: 14px;
+  }
+  #sidebar ul li a {
+    padding: 15px 30px;
+    display: block;
+    color: rgba(255, 255, 255, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  #sidebar ul li a:hover {
+    color: #fff;
+    background: #2f89fc;
+    border-bottom: 1px solid #2f89fc;
+  }
+  #sidebar ul li.active > a {
+    background: transparent;
+    color: #fff;
+  }
+  #sidebar ul li.active > a:hover {
+    background: #2f89fc;
+    border-bottom: 1px solid #2f89fc;
+  }
+  @media (max-width: 767.98px) {
+    #sidebar {
+      margin-left: -250px;
+    }
+    #sidebar.active {
+      margin-left: 0;
+    }
+    #sidebar .custom-menu {
+      margin-right: -60px !important;
+      top: 10px !important;
+    }
+  }
+  #sidebar .custom-menu {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    right: 0;
+    margin-right: -50px;
+    transition: 0.3s;
+  }
+  #sidebar .custom-menu .btn.btn-primary {
+    background: transparent;
+    border-color: transparent;
+  }
+  #sidebar .custom-menu .btn.btn-primary i {
+    color: black;
+    font-size: 24px;
+  }
+  #sidebar .custom-menu .btn.btn-primary:hover,
+  #sidebar .custom-menu .btn.btn-primary:focus {
+    background: transparent !important;
+    border-color: transparent !important;
+  }
+  a[data-toggle="collapse"] {
+    position: relative;
+  }
+  .dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+  }
+  #sidebarCollapse span {
+    @media (max-width: 767.98px) {
+      display: none;
+    }
+  }
+  #content {
+    width: 100%;
+    padding: 0;
+    min-height: 100vh;
+    transition: all 0.3s;
+  }
+  .btn.btn-primary {
+    background: #2f89fc;
+    border-color: #2f89fc;
+  }
+  .btn.btn-primary:hover,
+  .btn.btn-primary:focus {
+    background: #2f89fc !important;
+    border-color: #2f89fc !important;
+  }
+  .footer p {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .form-control {
+    height: 40px !important;
+    background: #fff;
+    color: #000;
+    font-size: 13px;
+    border-radius: 4px;
+    box-shadow: none !important;
+    
+  }
+  .form-control:focus,
+  .form-control:active {
+    border-color: #000;
+  }
+  .form-control::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .form-control::-moz-placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .form-control:-ms-input-placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .form-control:-moz-placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .subscribe-form .form-control {
+    background: #368eff;
+  }
+</style>
 <div class="row">
   <div class="col-xs-12">
     <div class="box box-primary">
@@ -80,8 +436,8 @@
     </div>
   </div>
 </div>
-<div class="modal modal-simpan no-print" role="dialog">
-  <div class="modal-dialog">
+<div class="modal modal-simpan" data-backdrop="static" data-keyboard="false" role="dialog">
+  <div class="modal-dialog modal-lg d-flex" style="width: 90%;">
     <div class="modal-content">
       <div class="modal-header">
         <button
@@ -97,40 +453,438 @@
         </h4>
       </div>
       <div class="modal-body">
-        <div class="form-horizontal">
-          <div class="form-group">
-            <div class="col-md-8">
-              <input type="hidden" name="id" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-3 control-label">Number Room</label>
-            <div class="col-md-9">
-              <input type="text" class="form-control" name="room_number" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-3 control-label">Floor</label>
-            <div class="col-md-9">
-              <select class="form-control" name="id_floor"></select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-3 control-label">Room Type</label>
-            <div class="col-md-9">
-              <select class="form-control" name="id_type"></select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-md-3 control-label">Status</label>
-            <div class="col-md-9">
-              <select class="form-control" name="status">
-                <option value="1">AKTIF</option>
-                <option value="0">NON AKTIF</option>
-              </select>
+        <div
+          class="card"
+          style="width: 100%; background-color: rgb(231, 228, 226); border: 1px"
+        >
+          <div class="card-body" style="margin-bottom: 50px;">
+            <div class="row" style="padding: 20px">
+              <table class="table table-bordered">
+                <tbody class="">
+                  <tr>
+                    <td
+                      style="
+                        background-color: rgb(216, 207, 204);
+                        border-style: outset;
+                        width: 20%;
+                      "
+                    >
+                      Nama
+                    </td>
+                    <td style="background-color: #fff">
+                      <input
+                        type="text"
+                        class="form-control nama_check"
+                        disabled
+                      />
+                    </td>
+                    <td
+                      style="
+                        background-color: rgb(216, 207, 204);
+                        border-style: outset;
+                        width: 20%;
+                      "
+                      
+                    >
+                      Nomor Kamar
+                    </td>
+                    <td style="background-color: #fff">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="room_number"
+                        id=""
+                        disabled
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      style="
+                        background-color: rgb(216, 207, 204);
+                        border-style: outset;
+                        width: 20%;
+                        
+                      "
+                    >
+                      Tgl Lahir
+                    </td>
+                    <td style="background-color: #fff">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="tgl_lahir"
+                        id=""
+                        disabled
+                      />
+                    </td>
+                    <td
+                      style="
+                        background-color: rgb(216, 207, 204);
+                        border-style: outset;
+                        width: 20%;
+                      "
+                    >
+                      Jumlah Orang
+                    </td>
+                    <td
+                      style="
+                        background-color: #fff;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                      "
+                    >
+                      <label style="font-size: 10px">Total Adult:</label>
+                      <input
+                        type="text"
+                        style="width: 40px"
+                        class="form-control"
+                        name="total_adult"
+                      />
+
+                      <label style="font-size: 10px">Total Child:</label>
+                      <input
+                        type="text"
+                        style="width: 40px"
+                        class="form-control"
+                        name="total_child"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      style="
+                        background-color: rgb(216, 207, 204);
+                        border-style: outset;
+                        width: 20%;
+                      "
+                    >
+                      Arrival Date
+                    </td>
+                    <td style="background-color: #fff">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="arrival_date"
+                        id=""
+                        disabled
+                      />
+                    </td>
+                    <td
+                      style="
+                        background-color: rgb(216, 207, 204);
+                        border-style: outset;
+                        width: 20%;
+                      "
+                    >
+                      Departure Date
+                    </td>
+                    <td style="background-color: #fff">
+                      <input
+                        type="date"
+                        class="form-control"
+                        name="departure_date"
+                        id=""
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
+        
+          <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+              <nav id="sidebar" class="bg-light p-4">
+                <h1><a href="index.html" class="logo">Project Name</a></h1>
+                <ul class="list-unstyled components mb-5">
+                 <li>
+                    <a href="#" id="identitas"><span class="fa fa-sticky-note mr-3"></span> Identitas</a>
+                  </li>
+                  <li>
+                    <a href="#" id="room_rate"><span class="fa fa-user mr-3"></span> Room Rate</a>
+                  </li>
+                  
+                </ul>
+              </nav>
+            </div>
+          
+            <!-- Main Content -->
+            <div class="col-md-9">
+              
+              <div class="content p-4" >
+                <div class="content identitas" style="display: none;">
+                <div class="callout callout-light" style="border-color: #080808;">
+                  <h4><i class="fa fa-user"></i> Identitas User :</h4>
+                </div>
+                <table class="table table-bordered" >
+                  <thead style="background-color: #cfcbcb;">
+                    <tr>
+                      <th colspan="4">Hello</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <input type="hidden" name="id" />
+                    <tr>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                        Nama
+                      </td>
+                      <td style="background-color: #fff;" >
+                        <div style="display: flex;">
+                        <select class="form-control" 
+                        name="judul" id="" style="width: 26%; margin-right: 10px;">
+                          <option value="Mr">Mr</option>
+                          <option value="Mrs">Mrs</option>
+                          <option value="Miss">Miss</option>
+                        </select>
+                        <input
+                          type="text"
+                          style="width: 70%;"
+                          class="form-control"
+                          name="nama_check"
+                          id=""
+                        />
+                      </div>
+                      </td>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                        ID Number
+                      </td>
+                      <td style="background-color: #fff">
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="id_number"
+                          id=""
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                        Tgl Lahir
+                      </td>
+                      <td style="background-color: #fff">
+                        <input
+                          type="date"
+                          class="form-control"
+                          name="tgl_lahir"
+                          id=""
+                        />
+                      </td>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                        Gender
+                      </td>
+                      <td style="background-color: #fff">
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="jk"
+                          id=""
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                        Agama
+                      </td>
+                      <td style="background-color: #fff">
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="agama"
+                          id=""
+                        />
+                      </td>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                       Pekerjaan
+                      </td>
+                      <td style="background-color: #fff">
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="pekerjaan"
+                          id=""
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                        Alamat
+                      </td>
+                      <td style="background-color: #fff">
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="alamat"
+                          id=""
+                        />
+                      </td>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                        No.Telp
+                      </td>
+                      <td style="background-color: #fff">
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="no_telp"
+                          id=""
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                        Email
+                      </td>
+                      <td style="background-color: #fff">
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="email"
+                          id=""
+                        />
+                      </td>
+                      <td
+                        style="
+                          background-color: rgb(235, 235, 235);
+                          border-style: outset;
+                          width: 20%;
+                        "
+                      >
+                        Foto Guest
+                      </td>
+                      <td style="background-color: #fff">
+                        <input
+                          type="text"
+                          class="form-control"
+                          name=""
+                          id=""
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button class="simpan_identitas btn btn-success">Simpan</button>
+            </div>
+                <div class="content room_rate" style="display: none;">
+                <table class="table table-bordered">
+                  <tr>
+                    <td><label for="">Arrival Date</label></td>
+                    <td><p class="arrival_date"></p></td>
+                    <td><label for="">Rate Plan</label></td>
+                    <td><p class="nama_plan"></p></td>
+                  </tr>
+                  <tr>
+                    <td><label for="">Departure Date</label></td>
+                    <td><p class="departure_date"></p></td>
+                    <td><label for="">Room Type</label></td>
+                    <td><p class="nama_plan"></p></td>
+                  </tr>
+                </table>
+                <div class="Information">
+                  <table class="table table-bordered">
+                    <thead class="bg bg-navy">
+                      <tr>
+                        <th>
+                          DATE
+                        </th>
+                        <th style="width: 5%;">ROOM</th>
+                        <th style="width: 15%;">SEASON</th>
+                        <th style="width: 20%;">PRICE</th>
+                        <th style="width: 20%;">DISCOUNT</th>
+                        <th style="width: 20%;">TOTAL</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>27-04-2024</td>
+                        <td><p id="number_room">
+
+                        </p></td>
+                        <td>-</td>
+                        <td>
+                          <div style="display: flex;">
+                          <p style="font-size: 14px;">Rp.</p>
+                          <input style="width: 90%;" type="text" name="price" id="price">
+                        </div>
+                        </td>
+                        <td>
+                          <div style="display: flex;">
+                          <p style="font-size: 14px;">%</p>
+                          <input id="diskon" type="text" style="width: 90%;">
+                        </div>
+                        </td>
+                        <td>
+                          <div style="display: flex;">
+                            <p style="font-size: 14px;">Rp.</p>
+                            <p id="total"></p>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <button type="submit" class="btn btn-primary">simpan</button>
+                </div> 
+                </div>
+                <!-- /infomasion-->
+              </div>
+            </div>
+          </div>
       </div>
       <div class="modal-footer">
         <div class="pull-right">

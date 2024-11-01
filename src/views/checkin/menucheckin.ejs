@@ -2,8 +2,8 @@
 $(document).ready(function(){
   var url = '<%= url %>checkin';
   $(".isibody").load(url);
-    $(".roomfloor").click(function(){
-      var url = '<%= url %>roomfloor';
+    $(".checkin").click(function(){
+      var url = '<%= url %>checkin';
       $(".isibody").load(url);
       return false;
     })
@@ -23,7 +23,7 @@ $(document).ready(function(){
       <i class='fa fa-angle-left pull-right'></i>
   </a>
   <ul class="treeview-menu">
-    <li><a href="#" class="roomfloor">Checkin</a></li>
+    <li><a href="#" class="checkin">Checkin</a></li>
     <li><a href="#" class="roomtype">Room Type</a></li>
   </ul>
 </li>

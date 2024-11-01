@@ -222,7 +222,8 @@
         type: "post",
         success: function (row) {
           $.each(row.data, function (key, val) {
-            var o = $("<option/>", { value: val.id, text: val.nama_plan });
+            var plan = `${val.nama_plan} - ${val.jml} ${val.jenis}`
+            var o = $("<option/>", { value: val.id, text: plan });
             $("[name='id_plan']").append(o);
           });
           if (id) {

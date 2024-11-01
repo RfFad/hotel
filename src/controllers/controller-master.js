@@ -98,7 +98,7 @@ module.exports = {
   },
   listroom(req,res){
       var query  = `SELECT r.*,f.nama_floor as nama_floor,rt.nama_type as nama_type from room r `;
-          query += `inner join room_type rt on (rt.id=r.id_type) `;
+          query += `inner join room_ratetype rt on (rt.id=r.id_type) `;
           query += `inner join floor f on (f.id=r.id_floor) `;
           query += `ORDER BY f.nama_floor`
       pool.query(query,function (err, results) {
@@ -264,18 +264,20 @@ module.exports = {
     });
 },
 listrates(req,res){
-    var query  = `SELECT 
-    room_rates.*, room_type.nama_type AS nama_type,
-    room_type.status AS status_type,  
-    ratetype.keterangan AS keterangan, 
-    sessions.nama_sessions AS nama_sessions, 
-    room_plan.nama_plan AS nama_plan 
-FROM 
-    room_rates `;
-        query += `INNER JOIN room_type ON room_rates.id_roomtype = room_type.id `;
-        query += `INNER JOIN ratetype ON room_rates.id_ratetype = ratetype.id `;
-        query += `INNER JOIN sessions ON room_rates.id_sessions = sessions.id `;
-        query += `INNER JOIN room_plan ON room_rates.id_plan = room_plan.id `;
+    var query  = `SELECT * FROM
+    room_ratetype `
+//     `SELECT 
+//     room_rates.*, room_type.nama_type AS nama_type,
+//     room_type.status AS status_type,  
+//     ratetype.keterangan AS keterangan, 
+//     sessions.nama_sessions AS nama_sessions, 
+//     room_plan.nama_plan AS nama_plan 
+// FROM 
+//     room_rates `;
+        // query += `INNER JOIN room_type ON room_rates.id_roomtype = room_type.id `;
+        // query += `INNER JOIN ratetype ON room_rates.id_ratetype = ratetype.id `;
+        // query += `INNER JOIN sessions ON room_rates.id_sessions = sessions.id `;
+        // query += `INNER JOIN room_plan ON room_rates.id_plan = room_plan.id `;
     pool.query(query,function (err, results) {
       if (err) {
           return res.status(500).json({ message: 'Ada kesalahan', error: err });

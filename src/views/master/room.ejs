@@ -85,13 +85,14 @@
     });
   }
   function roomtype(id=""){
-    var url = '<%= url %>listtype';
+    var url = '<%= url %>listrates';
 		$.ajax({
         url: url,
         type: 'post',
         success: function (row) {
           $.each(row.data,function(key,val){
-            var o = $("<option/>", {value: val.id, text: val.nama_type});
+            var type = `${val.nama_type} - ${val.nama_plan} : ${val.price}`
+            var o = $("<option/>", {value: val.id, text: type});
             $("[name='id_type']").append(o);
             $("[name='id_type'] option[value='" + id + "']").prop('selected',true);
             $("[name='id_type']").trigger('change');
