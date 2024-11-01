@@ -72,6 +72,13 @@
       $(".isibody").load(url);
       return false;
     })
+
+    $(".ratesdiscount").click(function(){
+      var url = '<%= url %>ratesdiscount';
+      $(".isibody").load(url);
+      return false;
+    });
+
     $(".employee_list").click(function(){
       var url = '<%= url %>employee_list';
       $(".isibody").load(url);
@@ -82,7 +89,14 @@
       $(".isibody").load(url);
       return false;
     })
+    $(".kategori_event").click(function(){
+      var url = '<%= url %>kategori_event';
+      $(".isibody").load(url);
+      return false;
+    })
+
   });
+  
 </script>
 <li class="header">MAIN NAVIGATION</li>
 <li class="treeview">
@@ -101,6 +115,7 @@
     <li><a href="#" class="roomstatus">Room Status</a></li>
     <li><a href="#" class="ratetype">Rate Type</a></li>
     <li><a href="#" class="roombreakdown">Room Breakdown</a></li>
+    <li><a href="#" class="ratesdiscount">Rates Discount</a></li>
   </ul>
 </li>
 <li class="treeview">
@@ -129,12 +144,12 @@
 </li>
 <li class="treeview">
   <a href="#">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-list"></i>
     <span>Banquet</span>
     <i class='fa fa-angle-left pull-right'></i>
   </a>
   <ul class="treeview-menu">
     <li><a href="#" class="banquet_time">Banquet Time</a></li>
-    <li><a href="#" class="">Kategori Event</a></li>
+    <li><a href="#" class="kategori_event">Kategori Event</a></li>
   </ul>
 </li>

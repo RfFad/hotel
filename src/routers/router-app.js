@@ -84,6 +84,13 @@ router.post("/simpanbreakdown", masterController.simpanbreakdown);
 router.get("/detailbreakdown", masterController.detailbreakdown);
 router.post("/hapusbreakdown", masterController.hapusbreakdown);
 router.post("/editbreakdown", masterController.editbreakdown);
+
+router.get("/ratesdiscount", masterController.ratesdiscount);
+router.post("/listdiscount", masterController.listdiscount);
+router.post("/simpandiscount", masterController.simpandiscount);
+router.get("/detaildiscount", masterController.detaildiscount);
+router.post("/hapusdiscount", masterController.hapusdiscount);
+router.post("/editdiscount", masterController.editdiscount);
 //employee status
 router.post("/simpanemployee_status", masterController.simpanemployee_status);
 router.get("/employee_status", masterController.employee_status);
@@ -119,6 +126,14 @@ router.post("/listbanquet_time", masterController.listbanquet_time);
 router.get("/detailbanquet_time", masterController.detailbanquet_time);
 router.post("/editbanquet_time", masterController.editbanquet_time)
 router.post("/hapusbanquet_time", masterController.hapusbanquet_time)
+//
+router.post("/simpankategori_event", masterController.simpankategori_event);
+router.get("/kategori_event", masterController.kategori_event);
+router.post("/listkategori_event", masterController.listkategori_event);
+router.get("/detailkategori_event", masterController.detailkategori_event);
+router.post("/editkategori_event", masterController.editkategori_event)
+router.post("/hapuskategori_event", masterController.hapuskategori_event)
+
 //checkin
 router.get("/checkin", checkinController.checkin);
 router.get("/detail_tamu", checkinController.detaitamu);
