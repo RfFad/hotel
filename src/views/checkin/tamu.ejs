@@ -2,6 +2,79 @@
 <script type="text/javascript">
   $(document).ready(function () {
     
+    $("#print_button").on("click", function () {
+    const printContent = `
+      <div style="font-family: Arial, sans-serif;">
+        <h2 style="text-align: center;">Hotel Check-in Details</h2>
+        <hr>
+        <h3>Identitas User:</h3>
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%;">
+          <tr>
+            <th>Nama</th>
+            <td>${$('[name="nama_check"]').val()}</td>
+          </tr>
+          <tr>
+            <th>Tanggal Lahir</th>
+            <td>${$('[name="tgl_lahir"]').val()}</td>
+          </tr>
+          <tr>
+            <th>Jenis Kelamin</th>
+            <td>${$('[name="jk"]').val()}</td>
+          </tr>
+          <tr>
+            <th>Agama</th>
+            <td>${$('[name="agama"]').val()}</td>
+          </tr>
+          <tr>
+            <th>Alamat</th>
+            <td>${$('[name="alamat"]').val()}</td>
+          </tr>
+          <tr>
+            <th>Email</th>
+            <td>${$('[name="email"]').val()}</td>
+          </tr>
+          <tr>
+            <th>No. Telepon</th>
+            <td>${$('[name="no_telp"]').val()}</td>
+          </tr>
+          <tr>
+            <th>Pekerjaan</th>
+            <td>${$('[name="pekerjaan"]').val()}</td>
+          </tr>
+        </table>
+
+        <h3>Room Rate:</h3>
+        <table border="1" cellpadding="10" cellspacing="0" style="width: 100%;">
+          <tr>
+            <th>Nomor Kamar</th>
+            <td>${$("#number_room").text()}</td>
+          </tr>
+          <tr>
+            <th>Tanggal Check-in</th>
+            <td>${$(".arrival_date").text()}</td>
+          </tr>
+          <tr>
+            <th>Tanggal Check-out</th>
+            <td>${$(".departure_date").text()}</td>
+          </tr>
+          <tr>
+            <th>Jumlah Orang</th>
+            <td>Dewasa: ${$('[name="total_adult"]').val()}, Anak: ${$('[name="total_child"]').val()}</td>
+          </tr>
+          <tr>
+            <th>Plan</th>
+            <td>${$(".nama_plan").text()}</td>
+          </tr>
+        </table>
+      </div>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>Print</title></head><body>' + printContent + '</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+  });
+
   //for content modal
   function hitungDiskon(){
     let harga = parseFloat($("#price").val())  ;
@@ -206,6 +279,7 @@
     })
   }
 </script>
+<button id="print_button" style="margin-top: 20px; padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer;">Print</button>
 <style>
   body {
     font-family: "Poppins", Arial, sans-serif;
