@@ -382,37 +382,7 @@ function roomplan(id = "") {
                             />
                           </td>
                         </tr>
-                        <tr>
-                          <td><label for="banquet">Banquet</label></td>
-                          <td>
-                            <div class="form-check form-check-inline">
-                              <input
-                                class="form-check-input"
-                                type="radio"
-                                name="banquet"
-                                id="banquetNo"
-                                value="Tidak"
-                                name = "banquet"
-                                checked
-                              />
-                              <label class="form-check-label" for="banquetNo"
-                                >Tidak</label
-                              >
-                            </div>
-                            <div class="form-check form-check-inline">
-                              <input
-                                class="form-check-input"
-                                type="radio"
-                                name="banquet"
-                                id="banquetYes"
-                                value="Ya"
-                              />
-                              <label class="form-check-label" for="banquetYes"
-                                >Ya</label
-                              >
-                            </div>
-                          </td>
-                        </tr>
+                        
                       </tbody>
                     </table>
                   </div>
@@ -464,37 +434,6 @@ function roomplan(id = "") {
                               value=""
                               placeholder="INPUT ID"
                             />
-                          </td>
-                        </tr>
-                        <tr>
-                          <td><label for="ratePlan">Guest Type</label></td>
-                          <td>
-                            <div class="form-group">
-                              <div class="form-check form-check-inline">
-                                <input
-                                  class="form-check-input"
-                                  type="radio"
-                                  name="guest_type"
-                                  id="regular"
-                                  value="regular"
-                                  required
-                                />
-                                <label class="form-check-label" for="regular"
-                                  >Regular</label
-                                >
-                                <input
-                                  class="form-check-input"
-                                  type="radio"
-                                  name="guest_type"
-                                  id="vip"
-                                  value="vip"
-                                  required
-                                />
-                                <label class="form-check-label" for="vip"
-                                  >Vip</label
-                                >
-                              </div>
-                            </div>
                           </td>
                         </tr>
                         <tr>
@@ -672,15 +611,18 @@ function roomplan(id = "") {
                           </td>
                         </tr>
                         <tr>
-                          <td><label for="ratePlan">Foto Tamu</label></td>
+                          <td><label for="arrivalDate">Status</label></td>
                           <td>
-                            <input
-                              type="file"
+                            <select
+                              name="status"
+                              id=""
                               class="form-control"
-                              id="ratePlan"
-                              value=""
-                              placeholder="INPUT TLP"
-                            />
+                              style="width: 50%"
+                            >
+                              <option value="karyawan swasta">
+                                Checkin
+                              </option>
+                            </select>
                           </td>
                         </tr>
                       </tbody>

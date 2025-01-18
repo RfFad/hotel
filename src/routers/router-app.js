@@ -139,9 +139,11 @@ router.get("/checkin", checkinController.checkin);
 router.get("/detail_tamu", checkinController.detaitamu);
 router.get("/data_checkin", checkinController.data_tamu);
 router.post("/simpan/checkin", checkinController.simpancheckin);
+router.post("/hapuscheckin", checkinController.hapuscheckin);
 router.post("/listcheckin", checkinController.listcheckin);
 router.post("/edit_identitas", checkinController.edit_identitas);
 router.post("/data_rate", checkinController.listprice)
 router.get("/detail_room", checkinController.detail_room);
+
 
 module.exports = router;

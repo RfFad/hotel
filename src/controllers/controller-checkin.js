@@ -10,16 +10,67 @@ module.exports = {
             userid: req.session.userid
         });
     },
-    simpancheckin(req,res){
-        pool.query(`insert into checkin (id, no_telp, id_rp, id_ms, arrival_date, departure_date, total_adult, total_child, banquet, jml_kmr, nomor_kamar, nama_check, id_number, guest_type, tgl_lahir, jk, agama, judul, pekerjaan, alamat, email) values (uuid(), ?, ? , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,[req.body.no_telp, req.body.id_rp, req.body.id_ms, req.body.arrival_date, req.body.departure_date, req.body.total_adult, req.body.total_child, req.body.banquet, req.body.jml_kmr, req.body.nomor_kamar, req.body.nama_check, req.body.id_number, req.body.guest_type, req.body.tgl_lahir, req.body.jk, req.body.agama, req.body.judul, req.body.pekerjaan, req.body.alamat, req.body.email],function (err, results) {
+    simpancheckin(req, res) {
+    // Ambil data dari body request
+    const {
+        no_telp, id_rp, id_ms, arrival_date, departure_date, total_adult, total_child,
+         jml_kmr, nomor_kamar, nama_check, id_number, tgl_lahir,
+        jk, agama, judul, pekerjaan, alamat, email, status
+    } = req.body;
+
+    // Validasi input penting
+    if (!arrival_date || !departure_date || !id_rp) {
+        return res.status(400).json({ message: 'Tanggal check-in, check-out, dan harga kamar wajib diisi!' });
+    }
+
+    // Hitung jumlah hari antara check-in dan check-out
+    const startDate = new Date(arrival_date);
+    const endDate = new Date(departure_date);
+    const diffInTime = endDate - startDate;
+
+    if (diffInTime <= 0) {
+        return res.status(400).json({ message: 'Tanggal check-out harus setelah tanggal check-in.' });
+    }
+
+    const totalDays = Math.ceil(diffInTime / (1000 * 60 * 60 * 24)); // Total hari
+    const totalPrice = totalDays * id_rp; // Total harga
+
+    // Query untuk menyimpan data
+    const query = `
+        INSERT INTO checkin (
+            id, no_telp, id_rp, id_ms, arrival_date, departure_date, total_adult,
+            total_child,  jml_kmr, nomor_kamar, nama_check, id_number, tgl_lahir, jk, agama, judul, pekerjaan, alamat, email, status
+        )
+        VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const values = [
+        no_telp, id_rp, id_ms, arrival_date, departure_date, total_adult, total_child,
+         jml_kmr, nomor_kamar, nama_check, id_number, tgl_lahir,
+        jk, agama, judul, pekerjaan, alamat, email, status
+    ];
+
+    // Eksekusi query
+    pool.query(query, values, function (err, results) {
+        if (err) {
+            console.error('Error saat menyimpan data:', err);
+            return res.status(500).json({ message: 'Gagal menyimpan data check-in.', error: err });
+        }
+
+        // Respons sukses
+        res.status(200).json({
+            success: true,
+            message: 'Data check-in berhasil disimpan.',
+        });
+    });
+},
+
+    
+    hapuscheckin(req,res){
+        pool.query(`delete from checkin where id = ?`,[req.body.id],function (err, results) {
           if (err) {
-              console.log(err)
               return res.status(500).json({ message: 'Ada kesalahan', error: err });
           }
-          res.redirect("/")
-          //.json({ success: true, data: results, jml: results.length, message : "Berhasil Checkin"});
-          
-
+          res.status(200).json({ success: true, data: results, jml: results.length});
         })
     },
     listcheckin(req,res){
@@ -62,7 +113,7 @@ module.exports = {
         })
     },
     edit_identitas(req,res){
-        pool.query(`update checkin set nama_check = ?, judul = ?, tgl_lahir = ?, agama = ?, alamat = ?, email = ?, id_number = ?, jk = ?, pekerjaan = ?, no_telp = ? where id = ?`,[req.body.nama_check, req.body.judul, req.body.tgl_lahir, req.body.agama, req.body.alamat, req.body.email, req.body.id_number, req.body.jk, req.body.pekerjaan, req.body.no_telp, req.body.id],function (err, results) {
+        pool.query(`update checkin set no_telp = ?, id_rp= ?, id_ms= ?, arival_date=? departure_date=?,total_adult = ?, total_child=?,jml_kmr=?, nomor_kamar=?, nama_check= ?, id_nr,tgl_lahir=?, jk=?,agama=?,judul=?, pekerjaan=?, alamat=?,email=?,status=?,` [req.body.id,req.body.no_telp,req.body.id_rp,req.body.id_ms,req.body.arrival_date,req.body.departure_date,req.body.total_adult,req.body.total_child,req.body.jml_kmr,req.body.nomor_kamar,req.body.nama_check,req.body.id_number,req.body.tgl_lahir,req.body.jk,req.body.agama,req.body.judul,req.body.pekerjaan,req.body.alamat,req.body.email,req.body.status],function (err, results) {
           if (err) {
               return res.status(500).json({ message: 'Ada kesalahan', error: err });
           }
