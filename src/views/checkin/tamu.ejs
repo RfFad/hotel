@@ -278,7 +278,7 @@
         },
     })
   }
-  function hapus(id){
+  function hapuscheckin(id){
     var url = '<%= url %>hapuscheckin';
     var formData = {
       id : id
@@ -927,23 +927,6 @@ try {
                           id=""
                         />
                       </td>
-                      <td
-                        style="
-                          background-color: rgb(235, 235, 235);
-                          border-style: outset;
-                          width: 20%;
-                        "
-                      >
-                        Foto Guest
-                      </td>
-                      <td style="background-color: #fff">
-                        <input
-                          type="text"
-                          class="form-control"
-                          name=""
-                          id=""
-                        />
-                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -992,7 +975,7 @@ try {
                       </tr>
                     </tbody>
                   </table>
-                  <button type="submit" class="btn btn-primary">simpan</button>
+                  <button type="submit" class="btn btn-primary" onclick="simpanData()">simpan</button>
                 </div> 
                 </div>
                 <!-- /infomasion-->
@@ -1002,7 +985,7 @@ try {
       </div>
       <div class="modal-footer">
         <div class="pull-right">
-          <button class="hapus btn bg-red">
+          <button class="hapus btn bg-red" onclick="hapuscheckin()">
             <i class="fa fa-minus"></i>&nbsp;Delete
           </button>
           <button id="print_button" class="btn btn-primary">

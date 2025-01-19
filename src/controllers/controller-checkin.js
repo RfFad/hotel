@@ -14,7 +14,7 @@ module.exports = {
     // Ambil data dari body request
     const {
         no_telp, id_rp, id_ms, arrival_date, departure_date, total_adult, total_child,
-         jml_kmr, nomor_kamar, nama_check, id_number, tgl_lahir,
+        banquet, jml_kmr, nomor_kamar, nama_check, id_number, tgl_lahir,
         jk, agama, judul, pekerjaan, alamat, email, status
     } = req.body;
 
@@ -39,13 +39,13 @@ module.exports = {
     const query = `
         INSERT INTO checkin (
             id, no_telp, id_rp, id_ms, arrival_date, departure_date, total_adult,
-            total_child,  jml_kmr, nomor_kamar, nama_check, id_number, tgl_lahir, jk, agama, judul, pekerjaan, alamat, email, status
+            total_child, banquet, jml_kmr, nomor_kamar, nama_check, id_number, tgl_lahir, jk, agama, judul, pekerjaan, alamat, email, status
         )
         VALUES (uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
         no_telp, id_rp, id_ms, arrival_date, departure_date, total_adult, total_child,
-         jml_kmr, nomor_kamar, nama_check, id_number, tgl_lahir,
+        banquet, jml_kmr, nomor_kamar, nama_check, id_number, tgl_lahir,
         jk, agama, judul, pekerjaan, alamat, email, status
     ];
 
@@ -113,7 +113,7 @@ module.exports = {
         })
     },
     edit_identitas(req,res){
-        pool.query(`update checkin set no_telp = ?, id_rp= ?, id_ms= ?, arival_date=? departure_date=?,total_adult = ?, total_child=?,jml_kmr=?, nomor_kamar=?, nama_check= ?, id_nr,tgl_lahir=?, jk=?,agama=?,judul=?, pekerjaan=?, alamat=?,email=?,status=?,` [req.body.id,req.body.no_telp,req.body.id_rp,req.body.id_ms,req.body.arrival_date,req.body.departure_date,req.body.total_adult,req.body.total_child,req.body.jml_kmr,req.body.nomor_kamar,req.body.nama_check,req.body.id_number,req.body.tgl_lahir,req.body.jk,req.body.agama,req.body.judul,req.body.pekerjaan,req.body.alamat,req.body.email,req.body.status],function (err, results) {
+        pool.query(`update checkin set no_telp = ?, nama_check= ?, id_number=?,tgl_lahir=?, jk=?,agama=?,judul=?, pekerjaan=?, alamat=?,email=? where id = ?` , [req.body.no_telp,req.body.nama_check,req.body.id_number,req.body.tgl_lahir,req.body.jk,req.body.agama,req.body.judul,req.body.pekerjaan,req.body.alamat,req.body.email,req.body.id],function (err, results) {
           if (err) {
               return res.status(500).json({ message: 'Ada kesalahan', error: err });
           }
